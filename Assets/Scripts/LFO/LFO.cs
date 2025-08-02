@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LFO : CycleInBeatsController
 {
+    [Header("LFO")]
+
     [SerializeField]
     protected LFOWaveformType waveform = LFOWaveformType.Sine;
 

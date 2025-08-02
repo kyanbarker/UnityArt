@@ -5,6 +5,8 @@ using UnityEngine;
 /// </summary>
 public abstract class LFOController : LFO
 {
+    [Header("LFO Controller")]
+
     [SerializeField]
     protected bool useExternalLFO = false;
 
@@ -13,7 +15,7 @@ public abstract class LFOController : LFO
     /// Defaults to this `LFO` if no value is supplied.
     /// </summary>
     [SerializeField]
-    [BoolConditionalHide("useExternalLFO")]
+    [ShowIfEqual("useExternalLFO", true)]
     protected LFO externalLFO;
 
     /// <summary>

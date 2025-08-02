@@ -6,6 +6,7 @@ using UnityEngine;
 public class BPMTime : MonoBehaviour
 {
     [SerializeField]
+    [Min(1e-10f)]
     private float bpm = 120f;
 
     public float BPM
@@ -14,8 +15,4 @@ public class BPMTime : MonoBehaviour
         set => bpm = Mathf.Max(Mathf.Epsilon, value);
     }
 
-    private void OnValidate()
-    {
-        bpm = Mathf.Max(Mathf.Epsilon, bpm);
-    }
 }

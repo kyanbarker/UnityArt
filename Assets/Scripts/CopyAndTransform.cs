@@ -57,6 +57,8 @@ public class CopyAndTransform : MonoBehaviour
         }
     }
 
+    [Header("Physical Transform")]
+
     [SerializeField]
     private Vector3 deltaPosition = Vector3.zero;
 
@@ -66,23 +68,25 @@ public class CopyAndTransform : MonoBehaviour
     [SerializeField]
     private Vector3 deltaRotation = Vector3.zero;
 
+    [Header("Color Transform")]
+
     [SerializeField]
     private ColorMode colorMode = ColorMode.None;
 
     [SerializeField]
-    [EnumConditionalHide("colorMode", (int)ColorMode.None, true, true)] // Hide when None is selected
+    [HideIfEqual("colorMode", (int)ColorMode.None)]
     private bool recolorOriginalGameObjects = false;
 
     [SerializeField]
-    [EnumConditionalHide("colorMode", (int)ColorMode.ColorList)] // Show only when ColorList is selected
+    [ShowIfEqual("colorMode", (int)ColorMode.ColorList)]
     private List<Color> colors = new() { Color.red, Color.green, Color.blue };
 
     [SerializeField]
-    [EnumConditionalHide("colorMode", (int)ColorMode.ColorGradient)] // Show only when ColorGradient is selected
+    [ShowIfEqual("colorMode", (int)ColorMode.ColorGradient)]
     private Color minColor = Color.black;
 
     [SerializeField]
-    [EnumConditionalHide("colorMode", (int)ColorMode.ColorGradient)] // Show only when ColorGradient is selected
+    [ShowIfEqual("colorMode", (int)ColorMode.ColorGradient)]
     private Color maxColor = Color.white;
 
     private void OnValidate()
@@ -102,7 +106,6 @@ public class CopyAndTransform : MonoBehaviour
             }
         }
     }
-
 
     private Color GetColorForIndex(int index)
     {

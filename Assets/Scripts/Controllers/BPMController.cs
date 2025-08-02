@@ -5,6 +5,8 @@ using UnityEngine;
 /// </summary>
 public class BPMController : MonoBehaviour
 {
+    [Header("BPM / BPM Time")]
+
     [SerializeField]
     private bool useExternalBPMTime = true;
     public bool UseExternalBPMTime
@@ -18,7 +20,7 @@ public class BPMController : MonoBehaviour
     /// If no value is supplied, defaults to `GetComponentInParent<BPMTime>()`
     /// </summary>
     [SerializeField]
-    [BoolConditionalHide("useExternalBPMTime")]
+    [ShowIfEqual("useExternalBPMTime", true)]
     private BPMTime externalBPMTime;
     public BPMTime ExternalBPMTime
     {
@@ -27,7 +29,8 @@ public class BPMController : MonoBehaviour
     }
 
     [SerializeField]
-    [BoolConditionalHide("useExternalBPMTime", true, true)]
+    [Min(1e-10f)]
+    [ShowIfEqual("useExternalBPMTime", false)]
     private float bpm = 120;
     public float BPM
     {
@@ -57,28 +60,25 @@ public class BPMController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private bool useGlobalTime = false;
+    public bool UseGlobalTime { get => useGlobalTime; set => useGlobalTime = value; }
 
     /// <summary>
     /// The value of `Time.realtimeSinceStartup` recorded at the time this controller's `Start` method ran
     /// </summary>
     private float startTimeSeconds;
+    public float StartTimeSeconds { get => startTimeSeconds; set => startTimeSeconds = value; }
 
     /// <summary>
     /// `Time.realtimeSinceStartup` if `useGlobalTime` is true, else `startTimeSeconds` less.
     /// </summary>
-    public float TimeSeconds => Time.realtimeSinceStartup - (useGlobalTime ? 0 : startTimeSeconds);
+    public float TimeSeconds => Time.realtimeSinceStartup - (UseGlobalTime ? 0 : StartTimeSeconds);
 
     public float BeatsPerSecond => BPM / 60;
 
     public float TimeBeats => TimeSeconds * BeatsPerSecond;
 
-    void OnValidate()
-    {
-        bpm = Mathf.Max(Mathf.Epsilon, bpm);
-    }
-
     void Start()
     {
-        startTimeSeconds = Time.realtimeSinceStartup;
+        StartTimeSeconds = Time.realtimeSinceStartup;
     }
 }

@@ -5,7 +5,10 @@ using UnityEngine;
 /// </summary>
 public class CycleInBeatsController : BPMController, ICycleController
 {
+    [Header("Cycle Controller")]
+
     [SerializeField]
+    [Min(1e-10f)]
     private float beatsPerCycle = 1;
     public float BeatsPerCycle
     {
@@ -14,9 +17,4 @@ public class CycleInBeatsController : BPMController, ICycleController
     }
 
     public float SecondsPerCycle => BeatsPerCycle / BeatsPerSecond;
-
-    private void OnValidate()
-    {
-        beatsPerCycle = Mathf.Max(Mathf.Epsilon, beatsPerCycle);
-    }
 }
