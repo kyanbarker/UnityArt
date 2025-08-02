@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// A component which keeps track of a bpm value
+/// </summary>
 public class BPMTime : MonoBehaviour
 {
     [SerializeField]

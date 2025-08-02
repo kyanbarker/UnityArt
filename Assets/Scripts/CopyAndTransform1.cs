@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static BPMTime;
 
 public enum RotationAxis
 {
-    X, Y, Z
+    X,
+    Y,
+    Z,
 }
 
 public class CopyAndTransform1 : MonoBehaviour
@@ -14,7 +15,7 @@ public class CopyAndTransform1 : MonoBehaviour
     {
         [RotationAxis.X] = Vector3.right,
         [RotationAxis.Y] = Vector3.up,
-        [RotationAxis.Z] = Vector3.forward
+        [RotationAxis.Z] = Vector3.forward,
     };
 
     [SerializeField]
@@ -71,7 +72,8 @@ public class CopyAndTransform1 : MonoBehaviour
         set
         {
             useParentBPM = value;
-            if (value) CacheBPMComponent();
+            if (value)
+                CacheBPMComponent();
         }
     }
 
@@ -105,7 +107,8 @@ public class CopyAndTransform1 : MonoBehaviour
     {
         foreach (var gameObjectToClone in gameObjectsToClone)
         {
-            if (gameObjectToClone.CompareTag("Clone")) return;
+            if (gameObjectToClone.CompareTag("Clone"))
+                return;
 
             var clone = Instantiate(gameObjectToClone, transform, true);
             clone.name += " " + copyIndex;

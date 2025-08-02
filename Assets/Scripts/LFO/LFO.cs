@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System;
 using Unity.VisualScripting;
 
+/// <summary>
+/// Deprecation in progress. Migra tion to LFO2 planned.
+/// </summary>
 public class LFO : MonoBehaviour
 {
     [SerializeField]
@@ -35,7 +38,7 @@ public class LFO : MonoBehaviour
             {
                 if (externalBPM == null)
                 {
-                    externalBPM = GetComponentInParent<BPMTime>();  
+                    externalBPM = GetComponentInParent<BPMTime>();
                 }
                 if (externalBPM != null)
                 {
@@ -125,8 +128,7 @@ public class LFO : MonoBehaviour
         return AnimationCurve.Linear(0, 0, 1, 1);
     }
 
-    // a normalized curve of `input` is the curve identical to `input` up to scale and position 
-    // with a domain and range of [0,1]
+    // 
     protected AnimationCurve NormalizeCurve(AnimationCurve input)
     {
         if (input == null || input.length == 0) throw new ArgumentException();

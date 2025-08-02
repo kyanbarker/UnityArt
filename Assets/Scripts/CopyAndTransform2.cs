@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// The ColorMode to use to transform colors of copies
+/// </summary>
 public enum ColorMode
 {
     None,
     ColorList,
-    ColorGradient
+    ColorGradient,
 }
 
 public class CopyAndTransform2 : MonoBehaviour
@@ -110,13 +113,13 @@ public class CopyAndTransform2 : MonoBehaviour
         {
             CacheBPMComponent();
         }
-        
+
         // Apply color to original objects if needed
         if (colorMode != ColorMode.None && recolorOriginalGameObject)
         {
             ApplyColorToOriginals();
         }
-        
+
         StartCoroutine(CreateCopiesOverTime());
     }
 
@@ -145,15 +148,17 @@ public class CopyAndTransform2 : MonoBehaviour
         switch (colorMode)
         {
             case ColorMode.ColorList:
-                if (colors.Count == 0) return Color.white;
+                if (colors.Count == 0)
+                    return Color.white;
                 return colors[index % colors.Count];
-                
+
             case ColorMode.ColorGradient:
                 int totalColors = recolorOriginalGameObject ? numCopies + 1 : numCopies;
-                if (totalColors <= 1) return minColor;
+                if (totalColors <= 1)
+                    return minColor;
                 float t = (float)index / (totalColors - 1);
                 return Color.Lerp(minColor, maxColor, t);
-                
+
             default:
                 return Color.white;
         }
@@ -202,18 +207,19 @@ public class CopyAndTransform2 : MonoBehaviour
     {
         foreach (var gameObjectToClone in gameObjectsToClone)
         {
-            if (gameObjectToClone.CompareTag("Clone")) return;
+            if (gameObjectToClone.CompareTag("Clone"))
+                return;
 
             var clone = Instantiate(gameObjectToClone, transform, true);
             clone.name = gameObjectToClone.name + " Clone " + copyIndex;
-            
+
             // Apply position transformation
             clone.transform.localPosition = deltaPosition * (copyIndex + 1);
-            
+
             // Apply rotation transformation (each axis independently)
             Vector3 totalRotation = deltaRotation * (copyIndex + 1);
             clone.transform.rotation *= Quaternion.Euler(totalRotation);
-            
+
             // Apply scale transformation
             clone.transform.localScale = Vector3.Scale(
                 gameObjectToClone.transform.localScale,
@@ -223,7 +229,7 @@ public class CopyAndTransform2 : MonoBehaviour
                     Mathf.Pow(deltaScale.z, (copyIndex + 1))
                 )
             );
-            
+
             // Apply color if color mode is enabled
             if (colorMode != ColorMode.None)
             {
@@ -231,7 +237,7 @@ public class CopyAndTransform2 : MonoBehaviour
                 Color copyColor = GetColorForIndex(colorIndex);
                 ApplyColorToGameObject(clone, copyColor);
             }
-            
+
             clone.tag = "Clone";
         }
     }

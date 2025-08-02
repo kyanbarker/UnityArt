@@ -1,9 +1,12 @@
-using UnityEngine.Events;
 using UnityEngine;
+using UnityEngine.Events;
 
 [System.Serializable]
 public class LFOVector3Event : UnityEvent<Vector3> { }
 
+/// <summary>
+/// An LFOController to automate vector3 events.
+/// </summary>
 public class LFOVector3Controller : LFOController<Vector3>
 {
     public LFOVector3Event action;
