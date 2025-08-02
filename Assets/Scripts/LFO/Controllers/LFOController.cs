@@ -60,7 +60,6 @@ public abstract class LFOController : LFO
         {
             return Evaluate(SecondsPerCycle);
         }
-        LFO.Evaluate(timeSeconds);
     }
 
     protected abstract void ApplyLFOValue(float lfoValue);

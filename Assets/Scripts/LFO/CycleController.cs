@@ -5,8 +5,6 @@ public class BPMController : MonoBehaviour
     [SerializeField]
     private bool useExternalBPM = true;
 
-    public bool UseExternalBPM { get; set; }
-
     [SerializeField]
     [BoolConditionalHide("useExternalBPM")]
     private BPMTime externalBPM;
