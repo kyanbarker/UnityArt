@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses bpm and cyclical beats for calculations
 /// </summary>
-public class CycleController : BPMController
+public class CycleInBeatsController : BPMController
 {
     [SerializeField]
     private float beatsPerCycle = 1;
@@ -12,8 +12,6 @@ public class CycleController : BPMController
         get => beatsPerCycle;
         set => beatsPerCycle = Mathf.Max(Mathf.Epsilon, value);
     }
-
-    public float BeatsPerSecond => BPM / 60;
 
     public float SecondsPerCycle => BeatsPerCycle / BeatsPerSecond;
 
