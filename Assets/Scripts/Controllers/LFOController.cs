@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses an `LFO` for calculations.
 /// </summary>
-public abstract class LFOController : LFO2
+public abstract class LFOController : LFO
 {
     [SerializeField]
     protected bool useExternalLFO = false;
@@ -14,7 +14,7 @@ public abstract class LFOController : LFO2
     /// </summary>
     [SerializeField]
     [BoolConditionalHide("useExternalLFO")]
-    protected LFO2 externalLFO;
+    protected LFO externalLFO;
 
     /// <summary>
     /// Whether or not this controller should loop.
@@ -26,7 +26,7 @@ public abstract class LFOController : LFO2
     /// <summary>
     /// The LFO to use to calculate the argument for this controllers action.
     /// </summary>
-    protected LFO2 LFO => useExternalLFO && externalLFO != null ? externalLFO : this;
+    protected LFO LFO => useExternalLFO && externalLFO != null ? externalLFO : this;
 
     protected virtual void Update()
     {

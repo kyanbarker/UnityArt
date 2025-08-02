@@ -29,9 +29,19 @@ public class CopyAndTransform2 : MonoBehaviour
 {
     [SerializeField]
     private int numCopies = 0;
+    public int NumCopies
+    {
+        get => numCopies;
+        set => numCopies = value;
+    }
 
     [SerializeField]
     private List<GameObject> originalGameObjects;
+    public List<GameObject> OriginalGameObjects
+    {
+        get => originalGameObjects;
+        set => originalGameObjects = value;
+    }
 
     [SerializeField]
     private Vector3 deltaPosition = Vector3.zero;
@@ -63,7 +73,7 @@ public class CopyAndTransform2 : MonoBehaviour
 
     private void OnValidate()
     {
-        numCopies = Mathf.Max(0, numCopies);
+        NumCopies = Mathf.Max(0, NumCopies);
     }
 
     private void Start()
@@ -77,10 +87,10 @@ public class CopyAndTransform2 : MonoBehaviour
 
     private void ApplyColorToOriginalGameObjects()
     {
-        Color originalColor = GetColorForIndex(0);
-        foreach (var gameObject in originalGameObjects)
+        Color color0 = GetColorForIndex(0);
+        foreach (var originalGameObject in OriginalGameObjects)
         {
-            ApplyColorToGameObject(gameObject, originalColor);
+            ApplyColorToGameObject(originalGameObject, color0);
         }
     }
 
@@ -94,24 +104,24 @@ public class CopyAndTransform2 : MonoBehaviour
                 return colors[index % colors.Count];
 
             case ColorMode.ColorGradient:
-                int totalColors = recolorOriginalGameObjects ? numCopies + 1 : numCopies;
+                int totalColors = recolorOriginalGameObjects ? NumCopies + 1 : NumCopies;
                 if (totalColors <= 1)
                     return minColor;
                 float t = (float)index / (totalColors - 1);
                 return Color.Lerp(minColor, maxColor, t);
 
             default:
-                return Color.white;
+                throw new System.Exception();
         }
     }
 
     private void ApplyColorToGameObject(GameObject gameObjectToColor, Color color)
     {
-        // Try to find and set color on various common components
-        Renderer renderer = gameObjectToColor.GetComponent<Renderer>();
-        if (renderer != null && renderer.material != null)
+        if (gameObjectToColor.TryGetComponent<Renderer>(out var renderer))
         {
-            renderer.material.color = color;
+            if (renderer.material != null)
+                renderer.material.color = color;
+
             return;
         }
         if (gameObjectToColor.TryGetComponent<SpriteRenderer>(out var spriteRenderer))
@@ -138,16 +148,16 @@ public class CopyAndTransform2 : MonoBehaviour
 
     public void CreateCopy(int copyIndex)
     {
-        if (copyIndex >= numCopies)
+        if (copyIndex >= NumCopies)
             return;
 
-        foreach (var gameObjectToClone in originalGameObjects)
+        foreach (var originalGameObject in OriginalGameObjects)
         {
-            if (gameObjectToClone.CompareTag("Clone"))
+            if (originalGameObject.CompareTag("Clone"))
                 return;
 
-            var clone = Instantiate(gameObjectToClone, transform, true);
-            clone.name = gameObjectToClone.name + " Clone " + copyIndex;
+            var clone = Instantiate(originalGameObject, transform, true);
+            clone.name = originalGameObject.name + " Clone " + copyIndex;
 
             // Apply position transformation
             clone.transform.localPosition = deltaPosition * (copyIndex + 1);
@@ -158,7 +168,7 @@ public class CopyAndTransform2 : MonoBehaviour
 
             // Apply scale transformation
             clone.transform.localScale = Vector3.Scale(
-                gameObjectToClone.transform.localScale,
+                originalGameObject.transform.localScale,
                 new Vector3(
                     Mathf.Pow(deltaScale.x, copyIndex + 1),
                     Mathf.Pow(deltaScale.y, copyIndex + 1),

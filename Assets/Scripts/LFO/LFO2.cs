@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class LFO2 : CycleInBeatsController
+public class LFO : CycleInBeatsController
 {
     [SerializeField]
     protected LFOWaveformType waveform = LFOWaveformType.Sine;
