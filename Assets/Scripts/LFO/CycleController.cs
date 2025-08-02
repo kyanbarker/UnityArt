@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BPMController : MonoBehaviour
+public class CycleController : MonoBehaviour
 {
     [SerializeField]
     private bool useExternalBPM = true;

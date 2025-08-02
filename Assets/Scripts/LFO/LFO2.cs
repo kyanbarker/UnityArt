@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using Unity.VisualScripting;
 
-public class LFO2 : BPMController
+public class LFO2 : CycleController
 {
     [SerializeField]
     protected LFOWaveformType waveform = LFOWaveformType.Sine;
