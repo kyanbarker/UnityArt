@@ -139,7 +139,7 @@ public class CopyAndTransform2 : MonoBehaviour
     public void CreateCopy(int copyIndex)
     {
         if (copyIndex >= numCopies)
-            enabled = false;
+            return;
 
         foreach (var gameObjectToClone in originalGameObjects)
         {

@@ -24,19 +24,9 @@ public abstract class LFOController : LFO2
     protected bool loop = true;
 
     /// <summary>
-    /// The value of `Time.realtimeSinceStartup` recorded at the time this controller's `Start` method ran
-    /// </summary>
-    protected float startTimeSeconds;
-
-    /// <summary>
     /// The LFO to use to calculate the argument for this controllers action.
     /// </summary>
     protected LFO2 LFO => useExternalLFO && externalLFO != null ? externalLFO : this;
-
-    protected virtual void Start()
-    {
-        startTimeSeconds = Time.realtimeSinceStartup;
-    }
 
     protected virtual void Update()
     {
