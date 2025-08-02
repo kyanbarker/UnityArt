@@ -25,7 +25,7 @@ public enum ColorMode
     ColorGradient,
 }
 
-public class CopyAndTransform2 : MonoBehaviour
+public class CopyAndTransform : MonoBehaviour
 {
     [SerializeField]
     private int numCopies = 0;
