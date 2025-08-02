@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses an `LFO` for calculations.
 /// </summary>
-public abstract class LFOController : LFO
+public abstract class LFOController : LFO2
 {
     [SerializeField]
     protected bool useExternalLFO = false;
@@ -14,17 +14,7 @@ public abstract class LFOController : LFO
     /// </summary>
     [SerializeField]
     [BoolConditionalHide("useExternalLFO")]
-    protected LFO externalLFO;
-
-    /// <summary>
-    /// We say that an `LFOController` uses global time if for every frame,
-    /// the controller evaluates the lfo at `realtimeSinceStartup`.
-    ///
-    /// We say that an `LFOController` uses local time if for every frame,
-    /// the controller evalutes the lfo at `realtimeSinceStartup - startTimeSeconds` (i.e., the number of seconds this controller has been active).
-    /// </summary>
-    [SerializeField]
-    protected bool useGlobalTime = false;
+    protected LFO2 externalLFO;
 
     /// <summary>
     /// Whether or not this controller should loop.
@@ -39,20 +29,9 @@ public abstract class LFOController : LFO
     protected float startTimeSeconds;
 
     /// <summary>
-    /// `Time.realtimeSinceStartup` if `useGlobalTime` is true, else `startTimeSeconds` less.
-    /// </summary>
-    protected float TimeSeconds
-    {
-        get => Time.realtimeSinceStartup - (useGlobalTime ? 0 : startTimeSeconds);
-    }
-
-    /// <summary>
     /// The LFO to use to calculate the argument for this controllers action.
     /// </summary>
-    protected LFO LFO
-    {
-        get { return useExternalLFO && externalLFO != null ? externalLFO : this; }
-    }
+    protected LFO2 LFO => useExternalLFO && externalLFO != null ? externalLFO : this;
 
     protected virtual void Start()
     {

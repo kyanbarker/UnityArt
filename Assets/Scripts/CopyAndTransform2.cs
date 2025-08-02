@@ -51,7 +51,7 @@ public class CopyAndTransform2 : MonoBehaviour
 
     [SerializeField]
     [EnumConditionalHide("colorMode", (int)ColorMode.ColorList)] // Show only when ColorList is selected
-    private List<Color> colors = new List<Color> { Color.red, Color.green, Color.blue };
+    private List<Color> colors = new() { Color.red, Color.green, Color.blue };
 
     [SerializeField]
     [EnumConditionalHide("colorMode", (int)ColorMode.ColorGradient)] // Show only when ColorGradient is selected
@@ -139,7 +139,7 @@ public class CopyAndTransform2 : MonoBehaviour
     public void CreateCopy(int copyIndex)
     {
         if (copyIndex >= numCopies)
-            return;
+            enabled = false;
 
         foreach (var gameObjectToClone in originalGameObjects)
         {

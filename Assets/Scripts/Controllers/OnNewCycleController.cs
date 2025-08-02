@@ -1,16 +1,18 @@
 using UnityEngine;
 using UnityEngine.Events;
 
+[System.Serializable]
 public class NewCycleEvent : UnityEvent<int> { }
 
 public class OnNewCycleController : MonoBehaviour
 {
     [SerializeField]
-    private ICycleController cycleController;
+    private MonoBehaviour cycleController;
+
     public ICycleController CycleController
     {
-        get => cycleController;
-        set => cycleController = value;
+        get => cycleController as ICycleController;
+        set => cycleController = value as MonoBehaviour;
     }
 
     [SerializeField]
@@ -20,7 +22,7 @@ public class OnNewCycleController : MonoBehaviour
 
     void Update()
     {
-        if (cycleController.NumElapsedCycles > currentCycleIndex)
+        if (CycleController.NumElapsedCycles > currentCycleIndex)
         {
             action.Invoke(currentCycleIndex);
             currentCycleIndex++;
