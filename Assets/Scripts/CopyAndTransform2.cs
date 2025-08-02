@@ -39,8 +39,22 @@ public class CopyAndTransform2 : MonoBehaviour
     private List<GameObject> originalGameObjects;
     public List<GameObject> OriginalGameObjects
     {
-        get => originalGameObjects;
+        get => originalGameObjects.Count > 0 ? originalGameObjects : Children;
         set => originalGameObjects = value;
+    }
+
+    public List<GameObject> Children
+    {
+        get
+        {
+            var children = new List<GameObject>();
+            var childCount = transform.childCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                children.Add(transform.GetChild(i).gameObject);
+            }
+            return children;
+        }
     }
 
     [SerializeField]
