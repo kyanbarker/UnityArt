@@ -1,10 +1,14 @@
 using UnityEngine;
 
-public class CycleInSecondsController : MonoBehaviour
+public class CycleInSecondsController : MonoBehaviour, ICycleController
 {
     [SerializeField]
     private float secondsPerCycle = 1;
-    public float SecondsPerCycle { get => secondsPerCycle; set => secondsPerCycle = value; }
+    public float SecondsPerCycle
+    {
+        get => secondsPerCycle;
+        set => secondsPerCycle = value;
+    }
 
     private void OnValidate()
     {

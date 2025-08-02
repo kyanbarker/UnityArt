@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses bpm and cyclical beats for calculations
 /// </summary>
-public class CycleInBeatsController : BPMController
+public class CycleInBeatsController : BPMController, ICycleController
 {
     [SerializeField]
     private float beatsPerCycle = 1;

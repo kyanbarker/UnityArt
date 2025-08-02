@@ -3,8 +3,11 @@ using UnityEngine.Events;
 
 public class NewCycleEvent : UnityEvent<int> { }
 
-public class OnNewCycleController : CycleInBeatsController
+public class OnNewCycleController : MonoBehaviour
 {
+    [SerializeField]
+    private ICycleController cycleController;
+
     [SerializeField]
     private NewCycleEvent action;
 
@@ -12,7 +15,7 @@ public class OnNewCycleController : CycleInBeatsController
 
     void Update()
     {
-        if (TimeBeats / BeatsPerCycle > currentCycleIndex)
+        if (cycleController.NumElapsedCycles > currentCycleIndex)
         {
             action.Invoke(currentCycleIndex);
             currentCycleIndex++;
