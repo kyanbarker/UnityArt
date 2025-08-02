@@ -1,37 +1,7 @@
 using UnityEngine;
 
-public class CycleController : MonoBehaviour
+public class CycleController : BPMController
 {
-    [SerializeField]
-    private bool useExternalBPM = true;
-
-    [SerializeField]
-    [BoolConditionalHide("useExternalBPM")]
-    private BPMTime externalBPM;
-
-    [SerializeField]
-    [BoolConditionalHide("useExternalBPM", true, true)]
-    private float bpm = 120;
-    public float BPM
-    {
-        get
-        {
-            if (useExternalBPM)
-            {
-                if (externalBPM == null)
-                {
-                    externalBPM = GetComponentInParent<BPMTime>();
-                }
-                if (externalBPM != null)
-                {
-                    return externalBPM.BPM;
-                }
-            }
-            return bpm;
-        }
-        set => bpm = Mathf.Max(Mathf.Epsilon, value);
-    }
-
     [SerializeField]
     private float beatsPerCycle = 1;
 
@@ -47,7 +17,6 @@ public class CycleController : MonoBehaviour
 
     private void OnValidate()
     {
-        bpm = Mathf.Max(Mathf.Epsilon, bpm);
         beatsPerCycle = Mathf.Max(Mathf.Epsilon, beatsPerCycle);
     }
 }
