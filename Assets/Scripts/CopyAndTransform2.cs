@@ -136,8 +136,11 @@ public class CopyAndTransform2 : MonoBehaviour
         }
     }
 
-    private void CreateCopy(int copyIndex)
+    public void CreateCopy(int copyIndex)
     {
+        if (copyIndex >= numCopies)
+            return;
+
         foreach (var gameObjectToClone in originalGameObjects)
         {
             if (gameObjectToClone.CompareTag("Clone"))

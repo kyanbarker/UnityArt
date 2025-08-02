@@ -1,7 +1,7 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEngine;
 
 /// <summary>
 /// Deprecation in progress. Migra tion to LFO2 planned.
@@ -9,7 +9,7 @@ using Unity.VisualScripting;
 public class LFO : MonoBehaviour
 {
     [SerializeField]
-    protected LFOWaveformType waveform = LFOWaveformType.Sine;
+    public LFOWaveformType waveform = LFOWaveformType.Sine;
 
     [SerializeField]
     protected AnimationCurve customCurve = AnimationCurve.Linear(0, 0, 1, 1);
@@ -65,9 +65,15 @@ public class LFO : MonoBehaviour
     protected BPMTime cachedBPMComponent;
     protected Dictionary<LFOWaveformType, AnimationCurve> waveformCurves;
 
-    public float BeatsPerSecond { get => BPM / 60; }
+    public float BeatsPerSecond
+    {
+        get => BPM / 60;
+    }
 
-    public float SecondsPerCycle { get => BeatsPerCycle / BeatsPerSecond; }
+    public float SecondsPerCycle
+    {
+        get => BeatsPerCycle / BeatsPerSecond;
+    }
 
     public LFOWaveformType Waveform { get; set; }
 
@@ -87,7 +93,7 @@ public class LFO : MonoBehaviour
             [LFOWaveformType.Triangle] = CreateTriangleCurve(),
             [LFOWaveformType.Square] = CreateSquareCurve(),
             [LFOWaveformType.Linear] = CreateLinearCurve(),
-            [LFOWaveformType.Custom] = customCurve
+            [LFOWaveformType.Custom] = customCurve,
         }[waveform];
     }
 
@@ -119,7 +125,7 @@ public class LFO : MonoBehaviour
     {
         return AnimationCurveUtils.Join(
             AnimationCurve.Constant(0, 0.5f, 1),
-           AnimationCurve.Constant(0.5f + 1e-5f, 1, 0)
+            AnimationCurve.Constant(0.5f + 1e-5f, 1, 0)
         );
     }
 
@@ -128,16 +134,18 @@ public class LFO : MonoBehaviour
         return AnimationCurve.Linear(0, 0, 1, 1);
     }
 
-    // 
+    //
     protected AnimationCurve NormalizeCurve(AnimationCurve input)
     {
-        if (input == null || input.length == 0) throw new ArgumentException();
+        if (input == null || input.length == 0)
+            throw new ArgumentException();
 
         // Ensure domain [0,1] and normalize range to [0,1]
         var normalized = new AnimationCurve();
 
         // Sample the curve and find actual min/max
-        float minVal = float.MaxValue, maxVal = float.MinValue;
+        float minVal = float.MaxValue,
+            maxVal = float.MinValue;
         int samples = 500;
 
         for (int i = 0; i <= samples; i++)
@@ -152,8 +160,7 @@ public class LFO : MonoBehaviour
         foreach (var key in input.keys)
         {
             float normalizedTime = Mathf.Clamp01(key.time);
-            float normalizedValue = maxVal > minVal ?
-                (key.value - minVal) / (maxVal - minVal) : 0;
+            float normalizedValue = maxVal > minVal ? (key.value - minVal) / (maxVal - minVal) : 0;
             normalized.AddKey(normalizedTime, normalizedValue);
         }
 
@@ -168,7 +175,8 @@ public class LFO : MonoBehaviour
     public float GetCycleProgress(float timeSeconds)
     {
         float cycleProgress = (timeSeconds / SecondsPerCycle + phaseOffset / (2 * Mathf.PI)) % 1;
-        if (cycleProgress < 0) cycleProgress += 1;
+        if (cycleProgress < 0)
+            cycleProgress += 1;
         return cycleProgress;
     }
 }

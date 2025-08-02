@@ -7,6 +7,11 @@ public class OnNewCycleController : MonoBehaviour
 {
     [SerializeField]
     private ICycleController cycleController;
+    public ICycleController CycleController
+    {
+        get => cycleController;
+        set => cycleController = value;
+    }
 
     [SerializeField]
     private NewCycleEvent action;
