@@ -95,18 +95,14 @@ public class CopyAndTransform : MonoBehaviour
         // Apply color to original objects if needed
         if (colorMode != ColorMode.None && recolorOriginalGameObjects)
         {
-            ApplyColorToOriginalGameObjects();
+            Color color0 = GetColorForIndex(0);
+            foreach (var originalGameObject in OriginalGameObjects)
+            {
+                ApplyColorToGameObject(originalGameObject, color0);
+            }
         }
     }
 
-    private void ApplyColorToOriginalGameObjects()
-    {
-        Color color0 = GetColorForIndex(0);
-        foreach (var originalGameObject in OriginalGameObjects)
-        {
-            ApplyColorToGameObject(originalGameObject, color0);
-        }
-    }
 
     private Color GetColorForIndex(int index)
     {
@@ -131,57 +127,51 @@ public class CopyAndTransform : MonoBehaviour
 
     private void ApplyColorToGameObject(GameObject gameObjectToColor, Color color)
     {
-        if (gameObjectToColor.TryGetComponent<Renderer>(out var renderer))
+        if (gameObjectToColor.TryGetComponent<Renderer>(out var renderer) && renderer.material != null)
         {
-            if (renderer.material != null)
-                renderer.material.color = color;
-
-            return;
+            renderer.material.color = color;
         }
         if (gameObjectToColor.TryGetComponent<SpriteRenderer>(out var spriteRenderer))
         {
             spriteRenderer.color = color;
-            return;
         }
         if (gameObjectToColor.TryGetComponent<UnityEngine.UI.Image>(out var image))
         {
             image.color = color;
-            return;
         }
         if (gameObjectToColor.TryGetComponent<UnityEngine.UI.Text>(out var text))
         {
             text.color = color;
-            return;
         }
-        for (int i = 0; i < gameObjectToColor.transform.childCount; i++)
+        var children = Children;
+        foreach (var child in children)
         {
-            var child = gameObjectToColor.transform.GetChild(i);
             ApplyColorToGameObject(child.gameObject, color);
         }
     }
 
-    public void CreateCopy(int copyIndex)
+    public void Execute(int copyIndex)
     {
         if (copyIndex >= NumCopies)
             return;
 
         foreach (var originalGameObject in OriginalGameObjects)
         {
-            if (originalGameObject.CompareTag("Clone"))
+            if (originalGameObject.CompareTag("Copy"))
                 return;
 
-            var clone = Instantiate(originalGameObject, transform, true);
-            clone.name = originalGameObject.name + " Clone " + copyIndex;
+            var copy = Instantiate(originalGameObject, transform, true);
+            copy.name = originalGameObject.name + " Copy " + copyIndex;
 
             // Apply position transformation
-            clone.transform.localPosition = deltaPosition * (copyIndex + 1);
+            copy.transform.localPosition = deltaPosition * (copyIndex + 1);
 
             // Apply rotation transformation (each axis independently)
             Vector3 totalRotation = deltaRotation * (copyIndex + 1);
-            clone.transform.rotation *= Quaternion.Euler(totalRotation);
+            copy.transform.rotation *= Quaternion.Euler(totalRotation);
 
             // Apply scale transformation
-            clone.transform.localScale = Vector3.Scale(
+            copy.transform.localScale = Vector3.Scale(
                 originalGameObject.transform.localScale,
                 new Vector3(
                     Mathf.Pow(deltaScale.x, copyIndex + 1),
@@ -195,10 +185,10 @@ public class CopyAndTransform : MonoBehaviour
             {
                 int colorIndex = recolorOriginalGameObjects ? copyIndex + 1 : copyIndex;
                 Color copyColor = GetColorForIndex(colorIndex);
-                ApplyColorToGameObject(clone, copyColor);
+                ApplyColorToGameObject(copy, copyColor);
             }
 
-            clone.tag = "Clone";
+            copy.tag = "Copy";
         }
     }
 }
