@@ -1,0 +1,18 @@
+using UnityEngine;
+
+public class BPMTime : MonoBehaviour
+{
+    [SerializeField]
+    private float bpm = 120f;
+
+    public float BPM
+    {
+        get => bpm;
+        set => bpm = Mathf.Max(Mathf.Epsilon, value);
+    }
+
+    private void OnValidate()
+    {
+        bpm = Mathf.Max(Mathf.Epsilon, bpm);
+    }
+}
