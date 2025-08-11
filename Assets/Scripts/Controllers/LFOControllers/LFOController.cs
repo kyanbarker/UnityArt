@@ -1,5 +1,16 @@
-using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// The waveform type to use for an LFOController
+/// </summary>
+public enum LFOWaveformType
+{
+    Sine,
+    Triangle,
+    Square,
+    Linear,
+    Custom,
+}
 
 /// <summary>
 /// A controller that uses an `LFO` for calculations.
