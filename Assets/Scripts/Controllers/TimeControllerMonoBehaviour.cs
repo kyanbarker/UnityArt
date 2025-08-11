@@ -16,7 +16,7 @@ public class TimeControllerMonoBehaviour : MonoBehaviour, ITimeController
     public float StartTimeSeconds { get; set; }
 
     // Expose the interface's default implementation to extending classes
-    public float TimeSeconds => ((ITimeController)this).TimeSeconds;
+    public float TimeSeconds => Time.realtimeSinceStartup - (UseGlobalTime ? 0 : StartTimeSeconds);
 
     private void Start()
     {
