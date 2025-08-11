@@ -1,12 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// A controller that uses bpm and cyclical beats for calculations
+/// A controller that uses cycles measured in beats for calculations
 /// </summary>
 public class CycleInBeatsController : BPMController, ICycleController
 {
-    [Header("Cycle Controller")]
-
+    [Header("Cycle In Beats Controller")]
     [SerializeField]
     [Min(1e-10f)]
     private float beatsPerCycle = 1;

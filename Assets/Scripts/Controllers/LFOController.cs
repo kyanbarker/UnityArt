@@ -6,7 +6,6 @@ using UnityEngine;
 public abstract class LFOController : LFO
 {
     [Header("LFO Controller")]
-
     [SerializeField]
     protected bool useExternalLFO = false;
 

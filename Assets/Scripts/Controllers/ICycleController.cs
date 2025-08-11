@@ -1,7 +1,8 @@
-using UnityEngine;
-
-public interface ICycleController
+/// <summary>
+/// A controller that uses cycles for calculations
+/// </summary>
+public interface ICycleController : ITimeController
 {
     public float SecondsPerCycle { get; }
-    public float NumElapsedCycles => Time.realtimeSinceStartup / SecondsPerCycle;
+    public float TimeCycles => TimeSeconds / SecondsPerCycle;
 }

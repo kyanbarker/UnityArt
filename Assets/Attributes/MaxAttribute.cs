@@ -1,9 +1,12 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
+/// <summary>
+/// Imposes a maximum value on a serialized int or float.
+/// </summary>
 [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
 public class MaxAttribute : PropertyAttribute
 {
@@ -27,10 +30,10 @@ public class MaxAttributeDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         MaxAttribute maxAttribute = (MaxAttribute)attribute;
-        
+
         EditorGUI.BeginChangeCheck();
         EditorGUI.PropertyField(position, property, label);
-        
+
         if (EditorGUI.EndChangeCheck())
         {
             switch (property.propertyType)
@@ -42,7 +45,9 @@ public class MaxAttributeDrawer : PropertyDrawer
                     property.intValue = Mathf.Min(property.intValue, (int)maxAttribute.MaxValue);
                     break;
                 default:
-                    Debug.LogWarning($"MaxAttribute is not supported on {property.propertyType} properties");
+                    Debug.LogWarning(
+                        $"MaxAttribute is not supported on {property.propertyType} properties"
+                    );
                     break;
             }
         }

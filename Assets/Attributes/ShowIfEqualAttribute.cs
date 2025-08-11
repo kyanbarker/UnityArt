@@ -1,9 +1,12 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
+/// <summary>
+/// Shows a serialized field iff the value of `SourceField` equals `CompareValue`
+/// </summary>
 [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
 public class ShowIfEqualAttribute : PropertyAttribute
 {
@@ -41,7 +44,7 @@ public class ShowIfEqualDrawer : PropertyDrawer
         {
             return EditorGUI.GetPropertyHeight(property, label, true);
         }
-        
+
         return -EditorGUIUtility.standardVerticalSpacing;
     }
 
@@ -62,7 +65,9 @@ public class ShowIfEqualDrawer : PropertyDrawer
             return AreValuesEqual(sourceProperty, showAttribute.CompareValue);
         }
 
-        Debug.LogWarning($"Cannot find property {showAttribute.SourceField} for ShowIfEqual attribute on {property.propertyPath}");
+        Debug.LogWarning(
+            $"Cannot find property {showAttribute.SourceField} for ShowIfEqual attribute on {property.propertyPath}"
+        );
         return true; // Default to showing if we can't find the source
     }
 
@@ -83,7 +88,9 @@ public class ShowIfEqualDrawer : PropertyDrawer
             case SerializedPropertyType.ObjectReference:
                 return property.objectReferenceValue == compareValue as UnityEngine.Object;
             default:
-                Debug.LogWarning($"ShowIfEqual does not support {property.propertyType} type comparisons");
+                Debug.LogWarning(
+                    $"ShowIfEqual does not support {property.propertyType} type comparisons"
+                );
                 return true;
         }
     }

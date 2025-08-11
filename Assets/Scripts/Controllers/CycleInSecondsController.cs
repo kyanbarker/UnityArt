@@ -1,7 +1,11 @@
 using UnityEngine;
 
-public class CycleInSecondsController : MonoBehaviour, ICycleController
+/// <summary>
+/// A controller that uses cycles measured in seconds for calculations
+/// </summary>
+public class CycleInSecondsController : TimeControllerMonoBehaviour, ICycleController
 {
+    [Header("Cycle In Seconds Controller")]
     [SerializeField]
     [Min(1e-10f)]
     private float secondsPerCycle = 1;

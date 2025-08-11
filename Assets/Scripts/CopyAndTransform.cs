@@ -58,7 +58,6 @@ public class CopyAndTransform : MonoBehaviour
     }
 
     [Header("Physical Transform")]
-
     [SerializeField]
     private Vector3 deltaPosition = Vector3.zero;
 
@@ -69,7 +68,6 @@ public class CopyAndTransform : MonoBehaviour
     private Vector3 deltaRotation = Vector3.zero;
 
     [Header("Color Transform")]
-
     [SerializeField]
     private ColorMode colorMode = ColorMode.None;
 
@@ -113,13 +111,19 @@ public class CopyAndTransform : MonoBehaviour
         {
             case ColorMode.ColorList:
                 if (colors.Count == 0)
-                    return Color.white;
+                {
+                    throw new System.Exception(
+                        "colors.Count == 0 but colorMode == ColorMode.ColorList"
+                    );
+                }
                 return colors[index % colors.Count];
 
             case ColorMode.ColorGradient:
                 int totalColors = recolorOriginalGameObjects ? NumCopies + 1 : NumCopies;
                 if (totalColors <= 1)
+                {
                     return minColor;
+                }
                 float t = (float)index / (totalColors - 1);
                 return Color.Lerp(minColor, maxColor, t);
 
@@ -130,7 +134,10 @@ public class CopyAndTransform : MonoBehaviour
 
     private void ApplyColorToGameObject(GameObject gameObjectToColor, Color color)
     {
-        if (gameObjectToColor.TryGetComponent<Renderer>(out var renderer) && renderer.material != null)
+        if (
+            gameObjectToColor.TryGetComponent<Renderer>(out var renderer)
+            && renderer.material != null
+        )
         {
             renderer.material.color = color;
         }
@@ -149,7 +156,7 @@ public class CopyAndTransform : MonoBehaviour
         var children = Children;
         foreach (var child in children)
         {
-            ApplyColorToGameObject(child.gameObject, color);
+            ApplyColorToGameObject(child, color);
         }
     }
 

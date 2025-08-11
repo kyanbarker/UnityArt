@@ -1,9 +1,12 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
+/// <summary>
+/// Imposes a minimum value on a serialized int or float.
+/// </summary>
 [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
 public class MinAttribute : PropertyAttribute
 {
@@ -27,10 +30,10 @@ public class MinAttributeDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         MinAttribute minAttribute = (MinAttribute)attribute;
-        
+
         EditorGUI.BeginChangeCheck();
         EditorGUI.PropertyField(position, property, label);
-        
+
         if (EditorGUI.EndChangeCheck())
         {
             switch (property.propertyType)
@@ -42,7 +45,9 @@ public class MinAttributeDrawer : PropertyDrawer
                     property.intValue = Mathf.Max(property.intValue, (int)minAttribute.MinValue);
                     break;
                 default:
-                    Debug.LogWarning($"MinAttribute is not supported on {property.propertyType} properties");
+                    Debug.LogWarning(
+                        $"MinAttribute is not supported on {property.propertyType} properties"
+                    );
                     break;
             }
         }

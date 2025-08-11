@@ -3,10 +3,9 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses bpm for calculations.
 /// </summary>
-public class BPMController : MonoBehaviour
+public class BPMController : TimeControllerMonoBehaviour
 {
-    [Header("BPM / BPM Time")]
-
+    [Header("BPM Controller")]
     [SerializeField]
     private bool useExternalBPMTime = true;
     public bool UseExternalBPMTime
@@ -36,49 +35,20 @@ public class BPMController : MonoBehaviour
     {
         get
         {
-            if (UseExternalBPMTime)
+            if (!UseExternalBPMTime)
             {
-                if (ExternalBPMTime == null)
-                {
-                    ExternalBPMTime = GetComponentInParent<BPMTime>();
-                }
-                if (ExternalBPMTime != null)
-                {
-                    return ExternalBPMTime.BPM;
-                }
+                return bpm;
             }
-            return bpm;
+            if (ExternalBPMTime == null)
+            {
+                ExternalBPMTime = GetComponentInParent<BPMTime>();
+            }
+            return ExternalBPMTime.BPM;
         }
         set => bpm = Mathf.Max(Mathf.Epsilon, value);
     }
 
-    /// <summary>
-    /// We say that an `BPMController` uses global time if `TimeSeconds` is simply `realtimeSinceStartup`.
-    ///
-    /// We say that an `BPMController` uses local time if `TimeSeconds` is instead
-    /// `realtimeSinceStartup - startTimeSeconds` (i.e., the number of seconds this controller has been active).
-    /// </summary>
-    [SerializeField]
-    private bool useGlobalTime = false;
-    public bool UseGlobalTime { get => useGlobalTime; set => useGlobalTime = value; }
-
-    /// <summary>
-    /// The value of `Time.realtimeSinceStartup` recorded at the time this controller's `Start` method ran
-    /// </summary>
-    private float startTimeSeconds;
-    public float StartTimeSeconds { get => startTimeSeconds; set => startTimeSeconds = value; }
-
-    /// <summary>
-    /// `Time.realtimeSinceStartup` if `useGlobalTime` is true, else `startTimeSeconds` less.
-    /// </summary>
-    public float TimeSeconds => Time.realtimeSinceStartup - (UseGlobalTime ? 0 : StartTimeSeconds);
-
     public float BeatsPerSecond => BPM / 60;
 
     public float TimeBeats => TimeSeconds * BeatsPerSecond;
-
-    void Start()
-    {
-        StartTimeSeconds = Time.realtimeSinceStartup;
-    }
 }

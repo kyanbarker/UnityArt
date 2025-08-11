@@ -1,9 +1,12 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
+/// <summary>
+/// Hides a serialized field iff the value of `SourceField` equals `CompareValue`
+/// </summary>
 [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
 public class HideIfEqualAttribute : PropertyAttribute
 {
@@ -41,7 +44,7 @@ public class HideIfEqualDrawer : PropertyDrawer
         {
             return EditorGUI.GetPropertyHeight(property, label, true);
         }
-        
+
         return -EditorGUIUtility.standardVerticalSpacing;
     }
 
@@ -62,7 +65,9 @@ public class HideIfEqualDrawer : PropertyDrawer
             return AreValuesEqual(sourceProperty, hideAttribute.CompareValue);
         }
 
-        Debug.LogWarning($"Cannot find property {hideAttribute.SourceField} for HideIfEqual attribute on {property.propertyPath}");
+        Debug.LogWarning(
+            $"Cannot find property {hideAttribute.SourceField} for HideIfEqual attribute on {property.propertyPath}"
+        );
         return false;
     }
 
@@ -83,7 +88,9 @@ public class HideIfEqualDrawer : PropertyDrawer
             case SerializedPropertyType.ObjectReference:
                 return property.objectReferenceValue == compareValue as UnityEngine.Object;
             default:
-                Debug.LogWarning($"HideIfEqual does not support {property.propertyType} type comparisons");
+                Debug.LogWarning(
+                    $"HideIfEqual does not support {property.propertyType} type comparisons"
+                );
                 return false;
         }
     }

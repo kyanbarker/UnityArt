@@ -5,7 +5,6 @@ using UnityEngine;
 public class LFO : CycleInBeatsController
 {
     [Header("LFO")]
-
     [SerializeField]
     protected LFOWaveformType waveform = LFOWaveformType.Sine;
 
@@ -24,7 +23,6 @@ public class LFO : CycleInBeatsController
     /// The curve to use for calculations, set according to `waveform`.
     /// </summary>
     [SerializeField]
-    //[ViewAnimationCurve]
     protected AnimationCurve curve;
 
     [SerializeField]

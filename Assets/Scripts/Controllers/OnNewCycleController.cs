@@ -4,6 +4,9 @@ using UnityEngine.Events;
 [System.Serializable]
 public class NewCycleEvent : UnityEvent<int> { }
 
+/// <summary>
+/// A controller which invokes the specified action upon each new cycle
+/// </summary>
 public class OnNewCycleController : MonoBehaviour
 {
     [SerializeField]
@@ -22,7 +25,7 @@ public class OnNewCycleController : MonoBehaviour
 
     void Update()
     {
-        if (CycleController.NumElapsedCycles > currentCycleIndex)
+        if (CycleController.TimeCycles > currentCycleIndex)
         {
             action.Invoke(currentCycleIndex);
             currentCycleIndex++;
