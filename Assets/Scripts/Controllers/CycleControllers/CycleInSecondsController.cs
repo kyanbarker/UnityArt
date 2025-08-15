@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses cycles measured in seconds for calculations
 /// </summary>
-public class CycleInSecondsController : TimeControllerMonoBehaviour, ICycleController
+public class CycleInSecondsController : TimeController, ICycleController
 {
     [Header("Cycle In Seconds Controller")]
     [SerializeField]

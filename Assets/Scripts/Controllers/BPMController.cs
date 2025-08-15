@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses bpm for calculations.
 /// </summary>
-public class BPMController : TimeControllerMonoBehaviour
+public class BPMController : TimeController
 {
     [Header("BPM Controller")]
     [SerializeField]

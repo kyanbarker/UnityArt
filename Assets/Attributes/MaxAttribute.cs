@@ -5,7 +5,7 @@ using UnityEditor;
 #endif
 
 /// <summary>
-/// Imposes a maximum value on a serialized int or float.
+/// Imposes an inclusively maximum value on a serialized int or float.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
 public class MaxAttribute : PropertyAttribute
