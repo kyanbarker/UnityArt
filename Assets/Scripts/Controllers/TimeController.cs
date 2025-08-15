@@ -5,6 +5,7 @@ using UnityEngine;
 /// </summary>
 public class TimeController : MonoBehaviour, ITimeController
 {
+    [Header("Time")]
     [SerializeField]
     private bool useGlobalTime = false;
     public bool UseGlobalTime

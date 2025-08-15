@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class BPMController : TimeController
 {
-    [Header("BPM Controller")]
+    [Header("BPM")]
     [SerializeField]
     private bool useExternalBPMTime = true;
     public bool UseExternalBPMTime

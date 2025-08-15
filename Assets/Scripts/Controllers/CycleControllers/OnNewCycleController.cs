@@ -9,7 +9,12 @@ public class OnNewCycleController : MonoBehaviour
     private MonoBehaviour cycleController;
 
     [SerializeField, Min(-1)]
-    private int maxCycles = 1; // -1 indicates infinite cycles
+    private int numCycles = 1; // -1 indicates infinite cycles
+    public int NumCycles
+    {
+        get => numCycles;
+        set => numCycles = value;
+    }
 
     public ICycleController CycleController
     {
@@ -24,11 +29,11 @@ public class OnNewCycleController : MonoBehaviour
 
     void Update()
     {
-        if (maxCycles != -1 && maxCycles <= currentCycleIndex)
+        if (NumCycles != -1 && NumCycles <= currentCycleIndex)
         {
             return;
         }
-        // else maxCycles == -1 (infinite cycles) or maxCycles > currentCycleIndex; thus, we continue
+        // else NumCycles == -1 (infinite cycles) or NumCycles > currentCycleIndex; thus, we continue
 
         bool isNewCycle = CycleController.TimeCycles > currentCycleIndex;
         if (isNewCycle)

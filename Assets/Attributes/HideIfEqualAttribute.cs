@@ -17,6 +17,14 @@ public class HideIfEqualAttribute : PropertyAttribute
     {
         SourceField = sourceField;
         CompareValue = compareValue;
+
+        // Warn if using boolean compareValue
+        if (compareValue is bool)
+        {
+            Debug.LogWarning(
+                $"HideIfEqual used with a boolean compareValue for field '{sourceField}'. Consider using ShowIfEqual with inverted logic instead for better clarity."
+            );
+        }
     }
 }
 
@@ -45,7 +53,8 @@ public class HideIfEqualDrawer : PropertyDrawer
             return EditorGUI.GetPropertyHeight(property, label, true);
         }
 
-        return -EditorGUIUtility.standardVerticalSpacing;
+        // Return 0 to completely hide the field without taking up space
+        return 0;
     }
 
     private bool ShouldHide(HideIfEqualAttribute hideAttribute, SerializedProperty property)

@@ -45,7 +45,8 @@ public class ShowIfEqualDrawer : PropertyDrawer
             return EditorGUI.GetPropertyHeight(property, label, true);
         }
 
-        return -EditorGUIUtility.standardVerticalSpacing;
+        // Return 0 to completely hide the field without taking up space
+        return 0;
     }
 
     private bool ShouldShow(ShowIfEqualAttribute showAttribute, SerializedProperty property)
