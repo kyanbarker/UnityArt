@@ -1,8 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
-
-[System.Serializable]
-public class NewCycleEvent : UnityEvent<int> { }
 
 /// <summary>
 /// A controller which invokes the specified action upon each new cycle
@@ -12,6 +8,9 @@ public class OnNewCycleController : MonoBehaviour
     [SerializeField]
     private MonoBehaviour cycleController;
 
+    [SerializeField, Min(-1)]
+    private int maxCycles = 1; // -1 indicates infinite cycles
+
     public ICycleController CycleController
     {
         get => cycleController as ICycleController;
@@ -19,13 +18,20 @@ public class OnNewCycleController : MonoBehaviour
     }
 
     [SerializeField]
-    private NewCycleEvent action;
+    private UnityIntEvent action;
 
     private int currentCycleIndex = 0;
 
     void Update()
     {
-        if (CycleController.TimeCycles > currentCycleIndex)
+        if (maxCycles != -1 && maxCycles <= currentCycleIndex)
+        {
+            return;
+        }
+        // else maxCycles == -1 (infinite cycles) or maxCycles > currentCycleIndex; thus, we continue
+
+        bool isNewCycle = CycleController.TimeCycles > currentCycleIndex;
+        if (isNewCycle)
         {
             action.Invoke(currentCycleIndex);
             currentCycleIndex++;
