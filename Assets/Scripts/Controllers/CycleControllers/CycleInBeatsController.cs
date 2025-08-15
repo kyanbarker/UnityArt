@@ -12,7 +12,7 @@ public class CycleInBeatsController : BPMController, ICycleController
     public float BeatsPerCycle
     {
         get => beatsPerCycle;
-        set => beatsPerCycle = Mathf.Max(Mathf.Epsilon, value);
+        set => beatsPerCycle = Mathf.Max(1e-10f, value);
     }
 
     public float SecondsPerCycle => BeatsPerCycle / BeatsPerSecond;

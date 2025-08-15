@@ -13,7 +13,7 @@ public enum LFOWaveformType
 }
 
 /// <summary>
-/// A controller that uses an `LFO` for calculations.
+/// A controller that uses an LFO for calculations.
 /// </summary>
 public abstract class LFOController : CycleInBeatsController
 {
@@ -36,12 +36,20 @@ public abstract class LFOController : CycleInBeatsController
     private AnimationCurve TriangleCurve =>
         AnimationCurveUtils.Join(
             AnimationCurve.Linear(0, 0, 0.5f, 1),
+            // `timeStart` cannot equal `0.5f + 1e-10f`
+            // because 1e-10f is small enough such that
+            // Unity believes 0.5f equals `0.5f + 1e-10f`
+            // leading to unsuccesful curve joining
             AnimationCurve.Linear(0.5f + 1e-5f, 1, 1, 0)
         );
 
     private AnimationCurve SquareCurve =>
         AnimationCurveUtils.Join(
             AnimationCurve.Constant(0, 0.5f, 1),
+            // `timeStart` cannot equal `0.5f + 1e-10f`
+            // because 1e-10f is small enough such that
+            // Unity believes 0.5f equals `0.5f + 1e-10f`
+            // leading to unsuccesful curve joining
             AnimationCurve.Constant(0.5f + 1e-5f, 1, 0)
         );
 

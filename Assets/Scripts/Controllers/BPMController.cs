@@ -45,7 +45,7 @@ public class BPMController : TimeControllerMonoBehaviour
             }
             return ExternalBPMTime.BPM;
         }
-        set => bpm = Mathf.Max(Mathf.Epsilon, value);
+        set => bpm = Mathf.Max(1e-10f, value);
     }
 
     public float BeatsPerSecond => BPM / 60;

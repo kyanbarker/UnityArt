@@ -12,6 +12,6 @@ public class BPMTime : MonoBehaviour
     public float BPM
     {
         get => bpm;
-        set => bpm = Mathf.Max(Mathf.Epsilon, value);
+        set => bpm = Mathf.Max(1e-10f, value);
     }
 }
