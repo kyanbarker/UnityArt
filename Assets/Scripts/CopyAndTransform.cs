@@ -19,22 +19,13 @@ public enum ColorMode
     ColorList,
 
     /// <summary>
-    /// Specify a min and max color and a gradient will be applied across copies
-    /// (and possibly original gameobjects dpeending on `recolorOriginalGameObjects`)
+    /// Use the color list as a gradient that interpolates across copies
     /// </summary>
-    ColorGradient,
+    Gradient,
 }
 
 public class CopyAndTransform : MonoBehaviour
 {
-    [SerializeField]
-    private int numCopies = 0;
-    public int NumCopies
-    {
-        get => numCopies;
-        set => numCopies = value;
-    }
-
     [SerializeField]
     private List<GameObject> originalGameObjects;
     public List<GameObject> OriginalGameObjects
@@ -76,23 +67,15 @@ public class CopyAndTransform : MonoBehaviour
     private bool recolorOriginalGameObjects = false;
 
     [SerializeField]
-    [ShowIfEqual("colorMode", (int)ColorMode.ColorList)]
+    [HideIfEqual("colorMode", (int)ColorMode.None)]
     private List<Color> colors = new() { Color.red, Color.green, Color.blue };
 
     [SerializeField]
-    [ShowIfEqual("colorMode", (int)ColorMode.ColorGradient)]
-    private Color minColor = Color.black;
+    [ShowIfEqual("colorMode", (int)ColorMode.Gradient)]
+    [Min(2)]
+    private int gradientLength = 10;
 
-    [SerializeField]
-    [ShowIfEqual("colorMode", (int)ColorMode.ColorGradient)]
-    private Color maxColor = Color.white;
-
-    private void OnValidate()
-    {
-        NumCopies = Mathf.Max(0, NumCopies);
-    }
-
-    private void Start()
+    private void Awake()
     {
         // Apply color to original objects if needed
         if (colorMode != ColorMode.None && recolorOriginalGameObjects)
@@ -107,29 +90,47 @@ public class CopyAndTransform : MonoBehaviour
 
     private Color GetColorForIndex(int index)
     {
+        if (colors.Count == 0)
+        {
+            Debug.LogWarning("Color list is empty but colorMode requires colors");
+            return Color.white;
+        }
+
         switch (colorMode)
         {
             case ColorMode.ColorList:
-                if (colors.Count == 0)
-                {
-                    throw new System.Exception(
-                        "colors.Count == 0 but colorMode == ColorMode.ColorList"
-                    );
-                }
                 return colors[index % colors.Count];
 
-            case ColorMode.ColorGradient:
-                int totalColors = recolorOriginalGameObjects ? NumCopies + 1 : NumCopies;
-                if (totalColors <= 1)
-                {
-                    return minColor;
-                }
-                float t = (float)index / (totalColors - 1);
-                return Color.Lerp(minColor, maxColor, t);
+            case ColorMode.Gradient:
+                // Calculate position in gradient cycle
+                float gradientPosition = (float)(index % gradientLength) / (gradientLength - 1);
+                return GetColorFromGradient(gradientPosition);
 
             default:
-                throw new System.Exception();
+                return Color.white;
         }
+    }
+
+    private Color GetColorFromGradient(float t)
+    {
+        if (colors.Count == 0)
+            return Color.white;
+
+        if (colors.Count == 1)
+            return colors[0];
+
+        // Scale t to the color list range
+        float scaledPosition = t * (colors.Count - 1);
+
+        // Find the two colors to lerp between
+        int lowerIndex = Mathf.FloorToInt(scaledPosition);
+        int upperIndex = Mathf.Min(lowerIndex + 1, colors.Count - 1);
+
+        // Calculate local interpolation value
+        float localT = scaledPosition - lowerIndex;
+
+        // Lerp between the two colors
+        return Color.Lerp(colors[lowerIndex], colors[upperIndex], localT);
     }
 
     private void ApplyColorToGameObject(GameObject gameObjectToColor, Color color)
@@ -153,28 +154,30 @@ public class CopyAndTransform : MonoBehaviour
         {
             text.color = color;
         }
-        var children = Children;
-        foreach (var child in children)
+
+        // Recursively apply to children
+        foreach (Transform child in gameObjectToColor.transform)
         {
-            ApplyColorToGameObject(child, color);
+            ApplyColorToGameObject(child.gameObject, color);
         }
     }
 
     public void Execute(int copyIndex)
     {
-        if (copyIndex >= NumCopies)
-            return;
-
+        Debug.Log(copyIndex);
         foreach (var originalGameObject in OriginalGameObjects)
         {
             if (originalGameObject.CompareTag("Copy"))
+            {
                 return;
+            }
 
             var copy = Instantiate(originalGameObject, transform, true);
             copy.name = originalGameObject.name + " Copy " + copyIndex;
 
             // Apply position transformation
-            copy.transform.localPosition = deltaPosition * (copyIndex + 1);
+            Vector3 totalDisplacement = deltaPosition * (copyIndex + 1);
+            copy.transform.position += totalDisplacement;
 
             // Apply rotation transformation (each axis independently)
             Vector3 totalRotation = deltaRotation * (copyIndex + 1);
