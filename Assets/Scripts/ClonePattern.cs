@@ -9,16 +9,36 @@ public class ClonePattern : MonoBehaviour
 
     [SerializeField, Min(0)]
     private int numCopies = 0;
+    public int NumCopies
+    {
+        get { return numCopies; }
+        set { numCopies = Mathf.Max(0, value); }
+    }
 
     [Header("Transform Pattern")]
     [SerializeField]
     private Vector3 deltaPosition = Vector3.zero;
+    public Vector3 DeltaPosition
+    {
+        get { return deltaPosition; }
+        set { deltaPosition = value; }
+    }
 
     [SerializeField]
     private Vector3 deltaScale = Vector3.one;
+    public Vector3 DeltaScale
+    {
+        get { return deltaScale; }
+        set { deltaScale = value; }
+    }
 
     [SerializeField]
     private Vector3 deltaRotation = Vector3.zero;
+    public Vector3 DeltaRotation
+    {
+        get { return deltaRotation; }
+        set { deltaRotation = value; }
+    }
 
     [Header("Color Pattern")]
     [SerializeField]
@@ -36,6 +56,13 @@ public class ClonePattern : MonoBehaviour
     [ShowIfEqual("colorMode", (int)ColorMode.Gradient)]
     [Min(2)]
     private int gradientLength = 10;
+
+    // Property with explicit backing field - Unity recognizes this better
+    public int GradientLength
+    {
+        get { return gradientLength; }
+        set { gradientLength = Mathf.Max(2, value); }
+    }
 
     [SerializeField]
     private List<GameObject> copies = new List<GameObject>();
@@ -101,7 +128,8 @@ public class ClonePattern : MonoBehaviour
     private void TransformCopy(int copyIndex, GameObject copy)
     {
         Vector3 totalDisplacement = deltaPosition * copyIndex;
-        copy.transform.localPosition = originalGameObject.transform.localPosition + totalDisplacement;
+        copy.transform.localPosition =
+            originalGameObject.transform.localPosition + totalDisplacement;
 
         Vector3 totalRotation = deltaRotation * copyIndex;
         copy.transform.localRotation =
