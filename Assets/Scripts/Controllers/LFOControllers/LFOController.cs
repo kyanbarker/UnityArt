@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -12,12 +13,31 @@ public enum LFOWaveformType
     Custom,
 }
 
-/// <summary>
-/// A controller that uses an LFO for calculations.
-/// </summary>
-public abstract class LFOController : CycleInBeatsController
+public class LFOWaveformAnimationCurves
 {
-    private AnimationCurve SineCurve
+    public static AnimationCurve TriangleCurve =>
+        AnimationCurveUtils.Join(
+            AnimationCurve.Linear(0, 0, 0.5f, 1),
+            // `timeStart` cannot equal `0.5f + 1e-10f`
+            // because 1e-10f is small enough such that
+            // Unity believes 0.5f equals `0.5f + 1e-10f`
+            // leading to unsuccesful curve joining
+            AnimationCurve.Linear(0.5f + 1e-5f, 1, 1, 0)
+        );
+
+    public static AnimationCurve SquareCurve =>
+        AnimationCurveUtils.Join(
+            AnimationCurve.Constant(0, 0.5f, 1),
+            // `timeStart` cannot equal `0.5f + 1e-10f`
+            // because 1e-10f is small enough such that
+            // Unity believes 0.5f equals `0.5f + 1e-10f`
+            // leading to unsuccesful curve joining
+            AnimationCurve.Constant(0.5f + 1e-5f, 1, 0)
+        );
+
+    public static AnimationCurve LinearCurve => AnimationCurve.Linear(0, 0, 1, 1);
+
+    public static AnimationCurve SineCurve
     {
         get
         {
@@ -32,95 +52,42 @@ public abstract class LFOController : CycleInBeatsController
             return curve;
         }
     }
+}
 
-    private AnimationCurve TriangleCurve =>
-        AnimationCurveUtils.Join(
-            AnimationCurve.Linear(0, 0, 0.5f, 1),
-            // `timeStart` cannot equal `0.5f + 1e-10f`
-            // because 1e-10f is small enough such that
-            // Unity believes 0.5f equals `0.5f + 1e-10f`
-            // leading to unsuccesful curve joining
-            AnimationCurve.Linear(0.5f + 1e-5f, 1, 1, 0)
-        );
-
-    private AnimationCurve SquareCurve =>
-        AnimationCurveUtils.Join(
-            AnimationCurve.Constant(0, 0.5f, 1),
-            // `timeStart` cannot equal `0.5f + 1e-10f`
-            // because 1e-10f is small enough such that
-            // Unity believes 0.5f equals `0.5f + 1e-10f`
-            // leading to unsuccesful curve joining
-            AnimationCurve.Constant(0.5f + 1e-5f, 1, 0)
-        );
-
-    private AnimationCurve LinearCurve => AnimationCurve.Linear(0, 0, 1, 1);
-
-    // ============================================================================================
-    // ============================================================================================
-
+/// <summary>
+/// A controller that uses an LFO for calculations.
+/// </summary>
+public abstract class LFOController : CycleInBeatsController
+{
     /// <summary>
     /// The waveform to use for calculations.
     /// Should not be changed.
     /// </summary>
-    [Header("LFO")]
+    [Space(10)]
     [SerializeField]
-    private LFOWaveformType waveform = LFOWaveformType.Sine;
+    protected LFOWaveformType waveform = LFOWaveformType.Sine;
 
     /// <summary>
     /// The custom curve to use for calculations when `waveform` is set to `Custom`.
     /// Should not be changed.
     /// </summary>
-    [SerializeField, ShowIfEqual("waveform", LFOWaveformType.Custom)]
-    private AnimationCurve customCurve = AnimationCurve.Linear(0, 0, 1, 1);
+    [SerializeField]
+    // [ShowIfEqual("waveform", LFOWaveformType.Custom)]
+    protected AnimationCurve customCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
     /// <summary>
     /// The curve to use for calculations, set according to `waveform`.
     /// Should not be changed.
     /// </summary>
     [SerializeField]
-    private AnimationCurve curve;
+    protected AnimationCurve curve;
 
     /// <summary>
     /// The number of radians at which the lfo should start if the period of the lfo is 2pi.
     /// </summary>
     [SerializeField]
     [Range(0, 2 * Mathf.PI)]
-    private float phaseOffset = 0;
-
-    private void Awake()
-    {
-        customCurve = AnimationCurveUtils.Normalize(customCurve);
-        curve = waveform switch
-        {
-            LFOWaveformType.Sine => SineCurve,
-            LFOWaveformType.Triangle => TriangleCurve,
-            LFOWaveformType.Square => SquareCurve,
-            LFOWaveformType.Linear => LinearCurve,
-            LFOWaveformType.Custom => customCurve,
-            _ => throw new System.Exception(),
-        };
-    }
-
-    /// <summary>
-    /// Evaluates the value of this LFO at the supplied time in seconds.
-    /// </summary>
-    public float Evaluate(float timeSeconds)
-    {
-        return curve.Evaluate(GetCycleProgress(timeSeconds));
-    }
-
-    /// <summary>
-    /// The proportion of the cycle that has been completed at the supplied time in seconds.
-    /// </summary>
-    public float GetCycleProgress(float timeSeconds)
-    {
-        float cycleProgress = (timeSeconds / SecondsPerCycle + phaseOffset / (2 * Mathf.PI)) % 1;
-
-        if (cycleProgress < 0)
-            cycleProgress += 1;
-
-        return cycleProgress;
-    }
+    protected float phaseOffset = 0;
 
     /// <summary>
     /// Whether or not this controller should loop.
@@ -128,6 +95,42 @@ public abstract class LFOController : CycleInBeatsController
     /// </summary>
     [SerializeField]
     protected bool loop = true;
+
+    /// <summary>
+    /// Evaluates the value of this LFO at the supplied time in seconds.
+    /// </summary>
+    protected float Evaluate(float timeSeconds)
+    {
+        return curve.Evaluate(GetCycleProgress(timeSeconds));
+    }
+
+    /// <summary>
+    /// The proportion of the cycle that has been completed at the supplied time in seconds.
+    /// </summary>
+    protected float GetCycleProgress(float timeSeconds)
+    {
+        float normalizedPhaseOffset = phaseOffset / (2 * Mathf.PI);
+        float normalizedTime = timeSeconds / SecondsPerCycle;
+        float cycleProgress = (normalizedTime + normalizedPhaseOffset) % 1;
+
+        if (cycleProgress < 0)
+            cycleProgress += 1;
+
+        return cycleProgress;
+    }
+
+    private void Awake()
+    {
+        curve = waveform switch
+        {
+            LFOWaveformType.Sine => LFOWaveformAnimationCurves.SineCurve,
+            LFOWaveformType.Triangle => LFOWaveformAnimationCurves.TriangleCurve,
+            LFOWaveformType.Square => LFOWaveformAnimationCurves.SquareCurve,
+            LFOWaveformType.Linear => LFOWaveformAnimationCurves.LinearCurve,
+            LFOWaveformType.Custom => AnimationCurveUtils.Normalize(customCurve),
+            _ => throw new Exception(),
+        };
+    }
 }
 
 // Generic version for internal use (not serialized by Unity)
