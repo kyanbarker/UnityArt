@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class CycleInBeatsController : BPMController, ICycleController
 {
-    [Header("Beats Cycle")]
+    [Space(10)]
     [SerializeField]
     [Min(1e-10f)]
     private float beatsPerCycle = 1;

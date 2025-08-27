@@ -3,9 +3,8 @@ using UnityEngine;
 /// <summary>
 /// A MonoBehaviour that uses global or local time for calculations
 /// </summary>
-public class TimeController : MonoBehaviour, ITimeController
+public abstract class TimeController : MonoBehaviour, ITimeController
 {
-    [Header("Time")]
     [SerializeField]
     private bool useGlobalTime = false;
     public bool UseGlobalTime

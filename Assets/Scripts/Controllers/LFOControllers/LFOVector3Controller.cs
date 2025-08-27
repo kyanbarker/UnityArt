@@ -5,7 +5,8 @@ using UnityEngine;
 /// </summary>
 public class LFOVector3Controller : LFOController<Vector3>
 {
-    public UnityVector3Event action;
+    [SerializeField]
+    private UnityVector3Event action;
 
     protected override Vector3 LerpValue(Vector3 min, Vector3 max, float t)
     {

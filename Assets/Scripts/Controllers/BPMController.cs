@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class BPMController : TimeController
 {
-    [Header("BPM")]
+    [Space(10)]
     [SerializeField]
     private bool useExternalBPMTime = true;
     public bool UseExternalBPMTime
@@ -19,7 +19,7 @@ public class BPMController : TimeController
     /// If no value is supplied, defaults to `GetComponentInParent<BPMTime>()`
     /// </summary>
     [SerializeField]
-    [ShowIfEqual("useExternalBPMTime", true)]
+    // [ShowIfEqual("useExternalBPMTime", true)]
     private BPMTime externalBPMTime;
     public BPMTime ExternalBPMTime
     {
@@ -29,7 +29,7 @@ public class BPMController : TimeController
 
     [SerializeField]
     [Min(1e-10f)]
-    [ShowIfEqual("useExternalBPMTime", false)]
+    // [ShowIfEqual("useExternalBPMTime", false)]
     private float bpm = 120;
     public float BPM
     {

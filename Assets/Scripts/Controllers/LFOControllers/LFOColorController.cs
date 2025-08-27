@@ -5,7 +5,8 @@ using UnityEngine;
 /// </summary>
 public class LFOColorController : LFOController<Color>
 {
-    public UnityColorEvent action;
+    [SerializeField]
+    private UnityColorEvent action;
 
     protected override Color LerpValue(Color min, Color max, float t)
     {

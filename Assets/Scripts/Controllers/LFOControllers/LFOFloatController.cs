@@ -6,7 +6,8 @@ using UnityEngine.Events;
 /// </summary>
 public class LFOFloatController : LFOController<float>
 {
-    public UnityFloatEvent action;
+    [SerializeField]
+    private UnityFloatEvent action;
 
     protected override float LerpValue(float min, float max, float t)
     {
