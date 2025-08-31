@@ -7,6 +7,11 @@ public class OnNewCycleController : MonoBehaviour
 {
     [SerializeField]
     private MonoBehaviour cycleController;
+    public ICycleController CycleController
+    {
+        get => cycleController as ICycleController;
+        set => cycleController = value as MonoBehaviour;
+    }
 
     [SerializeField, Min(-1)]
     private int numCycles = 1; // -1 indicates infinite cycles
@@ -14,12 +19,6 @@ public class OnNewCycleController : MonoBehaviour
     {
         get => numCycles;
         set => numCycles = value;
-    }
-
-    public ICycleController CycleController
-    {
-        get => cycleController as ICycleController;
-        set => cycleController = value as MonoBehaviour;
     }
 
     [SerializeField]

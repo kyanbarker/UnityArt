@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class CycleInSecondsController : TimeController, ICycleController
 {
-    [Header("Cycle In Seconds Controller")]
+    [Space(10)]
     [SerializeField]
     [Min(1e-10f)]
     private float secondsPerCycle = 1;

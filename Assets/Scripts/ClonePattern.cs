@@ -1,18 +1,24 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ClonePattern : MonoBehaviour
 {
-    [SerializeField]
     private GameObject originalGameObject;
 
-    [SerializeField, Min(0)]
-    private int numCopies = 0;
-    public int NumCopies
+    [SerializeField, Min(1)]
+    [FormerlySerializedAs("numCopies")]
+    private int numClones = 1;
+
+    /// <summary>
+    /// The number of clones in this pattern.
+    /// This number counts the original game object as a clone.
+    /// </summary>
+    public int NumClones
     {
-        get { return numCopies; }
-        set { numCopies = Mathf.Max(0, value); }
+        get { return numClones; }
+        set { numClones = Mathf.Max(1, value); }
     }
 
     [Header("Transform Pattern")]
@@ -45,126 +51,69 @@ public class ClonePattern : MonoBehaviour
     private ColorMode colorMode = ColorMode.None;
 
     [SerializeField]
-    [HideIfEqual("colorMode", (int)ColorMode.None)]
-    private bool recolorOriginalGameObjects = false;
-
-    [SerializeField]
-    [HideIfEqual("colorMode", (int)ColorMode.None)]
+    // [HideIfEqual("colorMode", (int)ColorMode.None)]
     private List<Color> colors = new() { Color.red, Color.green, Color.blue };
 
     [SerializeField]
-    [ShowIfEqual("colorMode", (int)ColorMode.Gradient)]
+    // [ShowIfEqual("colorMode", (int)ColorMode.Gradient)]
     [Min(2)]
     private int gradientLength = 10;
 
-    // Property with explicit backing field - Unity recognizes this better
+    // We explicit getters and setters instead of using arrow syntax,
+    // because Unity can serialize these as UnityEvent<int>
     public int GradientLength
     {
         get { return gradientLength; }
         set { gradientLength = Mathf.Max(2, value); }
     }
 
+    /// <summary>
+    /// List of all game objects (original + clones).
+    /// </summary>
     [SerializeField]
-    private List<GameObject> copies = new List<GameObject>();
+    private List<GameObject> gameObjects = new();
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void TransformClone(int cloneIndex, GameObject clone)
     {
-        // Optionally, recolor the original once at start
-        if (colorMode != ColorMode.None && recolorOriginalGameObjects)
-        {
-            SetColor(originalGameObject, GetColor(0));
-        }
-
-        // Initial creation of clones (if any desired)
-        int desiredCount = numCopies - 1;
-        for (int i = 0; i < desiredCount; i++)
-        {
-            var copy = Instantiate(originalGameObject, transform, true);
-            copy.name = originalGameObject.name + " Copy " + (i + 1);
-            copies.Add(copy);
-            TransformCopy(i + 1, copy);
-            SetColor(copy, GetColor(i + 1));
-        }
-    }
-
-    void Update()
-    {
-        // Determine desired number of clones (excluding the original)
-        int desiredCount = numCopies - 1;
-
-        // Add clones if desiredCount is greater than current count
-        while (copies.Count < desiredCount)
-        {
-            int cloneIndex = copies.Count + 1;
-            var copy = Instantiate(originalGameObject, transform, true);
-            copy.name = originalGameObject.name + " Copy " + cloneIndex;
-            copies.Add(copy);
-            // Initialize transform and color for the new clone
-            TransformCopy(cloneIndex, copy);
-            SetColor(copy, GetColor(cloneIndex));
-        }
-
-        // Remove clones if desiredCount is less than the current count
-        while (copies.Count > desiredCount)
-        {
-            var lastClone = copies[copies.Count - 1];
-            copies.RemoveAt(copies.Count - 1);
-            if (lastClone != null)
-            {
-                DestroyImmediate(lastClone);
-            }
-        }
-
-        // Update transform and color for each clone after changes
-        for (int i = 0; i < copies.Count; i++)
-        {
-            int cloneIndex = i + 1;
-            TransformCopy(cloneIndex, copies[i]);
-            SetColor(copies[i], GetColor(cloneIndex));
-        }
-    }
-
-    private void TransformCopy(int copyIndex, GameObject copy)
-    {
-        Vector3 totalDisplacement = deltaPosition * copyIndex;
-        copy.transform.localPosition =
+        Vector3 totalDisplacement = deltaPosition * cloneIndex;
+        clone.transform.localPosition =
             originalGameObject.transform.localPosition + totalDisplacement;
 
-        Vector3 totalRotation = deltaRotation * copyIndex;
-        copy.transform.localRotation =
+        Vector3 totalRotation = deltaRotation * cloneIndex;
+        clone.transform.localRotation =
             originalGameObject.transform.localRotation * Quaternion.Euler(totalRotation);
 
-        copy.transform.localScale = Vector3.Scale(
+        clone.transform.localScale = Vector3.Scale(
             originalGameObject.transform.localScale,
             new Vector3(
-                Mathf.Pow(deltaScale.x, copyIndex),
-                Mathf.Pow(deltaScale.y, copyIndex),
-                Mathf.Pow(deltaScale.z, copyIndex)
+                Mathf.Pow(deltaScale.x, cloneIndex),
+                Mathf.Pow(deltaScale.y, cloneIndex),
+                Mathf.Pow(deltaScale.z, cloneIndex)
             )
         );
     }
 
     private Color GetColor(int index)
     {
+        if (colorMode == ColorMode.None)
+        {
+            Debug.LogWarning("GetColor called when colorMode is None");
+            return Color.white;
+        }
         if (colors.Count == 0)
         {
             Debug.LogWarning("Color list is empty but colorMode requires colors");
             return Color.white;
         }
 
-        switch (colorMode)
+        return colorMode switch
         {
-            case ColorMode.ColorList:
-                return colors[index % colors.Count];
-
-            case ColorMode.Gradient:
-                float gradientPosition = (float)(index % gradientLength) / (gradientLength - 1);
-                return GetColorFromGradient(gradientPosition);
-
-            default:
-                return Color.white;
-        }
+            ColorMode.ColorList => colors[index % colors.Count],
+            ColorMode.Gradient => GetColorFromGradient(
+                (float)(index % gradientLength) / (gradientLength - 1)
+            ),
+            _ => throw new Exception(),
+        };
     }
 
     private Color GetColorFromGradient(float t)
@@ -207,6 +156,93 @@ public class ClonePattern : MonoBehaviour
         foreach (Transform child in gameObjectToColor.transform)
         {
             SetColor(child.gameObject, color);
+        }
+    }
+
+    // Copies should be called in Awake instead of Start so that all clones are spawned at the same time
+    // Awake is called before Start.
+    void Awake()
+    {
+        if (transform.childCount > 0)
+        {
+            originalGameObject = transform.GetChild(0).gameObject;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "No original game object assigned and no children found to use as original."
+            );
+            return;
+        }
+        gameObjects.Add(originalGameObject);
+
+        // Optionally, recolor the original once at start
+        if (colorMode != ColorMode.None)
+        {
+            SetColor(originalGameObject, GetColor(0));
+        }
+
+        // See note on clone indices in `CreateClone`.
+        // Creating a 0'th clone would duplicate the original, so we start from index 1.
+        for (int cloneIndex = 1; cloneIndex <= NumClones - 1; cloneIndex++)
+        {
+            CreateClone(cloneIndex);
+        }
+    }
+
+    /// <summary>
+    /// Creates a clone of the original game object;
+    /// Clone index 0 is the original gameobject,
+    /// clone index 1 is the 1st gameobject,
+    /// clone index 2 is the 2nd gameobject, etc.
+    /// </summary>
+    private void CreateClone(int index)
+    {
+        if (index <= 0)
+        {
+            Debug.LogWarning(
+                "Clone index = 0 refers to the original game object. Clone index < 0 is meaningless. CreateClone should only be called with a positive index."
+            );
+            return;
+        }
+        var clone = Instantiate(originalGameObject, transform, true);
+        clone.name = originalGameObject.name + " Clone " + index;
+        gameObjects.Add(clone);
+        TransformClone(index, clone);
+        if (colorMode != ColorMode.None)
+        {
+            SetColor(clone, GetColor(index));
+        }
+    }
+
+    void Update()
+    {
+        // Add clones if NumClones is greater than current count
+        while (gameObjects.Count < NumClones)
+        {
+            int cloneIndex = gameObjects.Count;
+            CreateClone(cloneIndex);
+        }
+
+        // Remove clones if desiredCount is less than the current count
+        while (gameObjects.Count > NumClones)
+        {
+            var lastClone = gameObjects[gameObjects.Count - 1];
+            gameObjects.RemoveAt(gameObjects.Count - 1);
+            if (lastClone != null)
+            {
+                DestroyImmediate(lastClone);
+            }
+        }
+
+        // Update transform and color for each game object after changes
+        for (int i = 0; i < gameObjects.Count; i++)
+        {
+            TransformClone(i, gameObjects[i]);
+            if (colorMode != ColorMode.None)
+            {
+                SetColor(gameObjects[i], GetColor(i));
+            }
         }
     }
 }
