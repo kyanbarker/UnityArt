@@ -1,18 +1,6 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// The waveform type to use for an LFOController
-/// </summary>
-public enum LFOWaveformType
-{
-    Sine,
-    Triangle,
-    Square,
-    Linear,
-    Custom,
-}
-
 public class LFOWaveformAnimationCurves
 {
     public static AnimationCurve TriangleCurve =>
@@ -59,13 +47,27 @@ public class LFOWaveformAnimationCurves
 /// </summary>
 public abstract class LFOController : CycleInBeatsController
 {
+
+    /// <summary>
+    /// The waveform type to use for an LFOController
+    /// </summary>
+    public enum WaveformType
+    {
+        Sine,
+        Triangle,
+        Square,
+        Linear,
+        Custom,
+    }
+
+
     /// <summary>
     /// The waveform to use for calculations.
     /// Should not be changed.
     /// </summary>
     [Space(10)]
     [SerializeField]
-    protected LFOWaveformType waveform = LFOWaveformType.Sine;
+    protected WaveformType waveform = WaveformType.Sine;
 
     /// <summary>
     /// The custom curve to use for calculations when `waveform` is set to `Custom`.
@@ -109,9 +111,8 @@ public abstract class LFOController : CycleInBeatsController
     /// </summary>
     protected float GetCycleProgress(float timeSeconds)
     {
-        float normalizedPhaseOffset = phaseOffset / (2 * Mathf.PI);
-        float normalizedTime = timeSeconds / SecondsPerCycle;
-        float cycleProgress = (normalizedTime + normalizedPhaseOffset) % 1;
+        float timeCycles = timeSeconds / SecondsPerCycle;
+        float cycleProgress = (timeCycles + phaseOffset) % 1;
 
         if (cycleProgress < 0)
             cycleProgress += 1;
@@ -123,11 +124,11 @@ public abstract class LFOController : CycleInBeatsController
     {
         curve = waveform switch
         {
-            LFOWaveformType.Sine => LFOWaveformAnimationCurves.SineCurve,
-            LFOWaveformType.Triangle => LFOWaveformAnimationCurves.TriangleCurve,
-            LFOWaveformType.Square => LFOWaveformAnimationCurves.SquareCurve,
-            LFOWaveformType.Linear => LFOWaveformAnimationCurves.LinearCurve,
-            LFOWaveformType.Custom => AnimationCurveUtils.Normalize(customCurve),
+            WaveformType.Sine => LFOWaveformAnimationCurves.SineCurve,
+            WaveformType.Triangle => LFOWaveformAnimationCurves.TriangleCurve,
+            WaveformType.Square => LFOWaveformAnimationCurves.SquareCurve,
+            WaveformType.Linear => LFOWaveformAnimationCurves.LinearCurve,
+            WaveformType.Custom => AnimationCurveUtils.Normalize(customCurve),
             _ => throw new Exception(),
         };
     }

@@ -185,15 +185,13 @@ public class ClonePattern : MonoBehaviour
     // Awake is called before Start.
     void Awake()
     {
-        if (transform.childCount > 0)
+        if (transform.childCount == 1)
         {
             originalGameObject = transform.GetChild(0).gameObject;
         }
         else
         {
-            Debug.LogWarning(
-                "No original game object assigned and no children found to use as original."
-            );
+            Debug.LogWarning("child count is not 1!");
             return;
         }
         gameObjects.Add(originalGameObject);

@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A controller that uses bpm for calculations.
 /// </summary>
-public class BPMController : TimeController
+public class BpmController : TimeController
 {
     [Space(10)]
     [SerializeField]
@@ -20,18 +20,18 @@ public class BPMController : TimeController
     /// </summary>
     [SerializeField]
     // [ShowIfEqual("useExternalBPMTime", true)]
-    private BPMTime externalBPMTime;
-    public BPMTime ExternalBPMTime
+    private BpmTimer externalBpmTimer;
+    public BpmTimer ExternalBpmTimer
     {
-        get => externalBPMTime;
-        set => externalBPMTime = value;
+        get => externalBpmTimer;
+        set => externalBpmTimer = value;
     }
 
     [SerializeField]
     [Min(1e-10f)]
     // [ShowIfEqual("useExternalBPMTime", false)]
     private float bpm = 120;
-    public float BPM
+    public float Bpm
     {
         get
         {
@@ -39,16 +39,16 @@ public class BPMController : TimeController
             {
                 return bpm;
             }
-            if (ExternalBPMTime == null)
+            if (ExternalBpmTimer == null)
             {
-                ExternalBPMTime = GetComponentInParent<BPMTime>();
+                ExternalBpmTimer = GetComponentInParent<BpmTimer>();
             }
-            return ExternalBPMTime.BPM;
+            return ExternalBpmTimer.BPM;
         }
         set => bpm = Mathf.Max(1e-10f, value);
     }
 
-    public float BeatsPerSecond => BPM / 60;
+    public float BeatsPerSecond => Bpm / 60;
 
     public float TimeBeats => TimeSeconds * BeatsPerSecond;
 }
