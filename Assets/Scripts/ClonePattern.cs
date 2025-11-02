@@ -5,6 +5,28 @@ using UnityEngine.Serialization;
 
 public class ClonePattern : MonoBehaviour
 {
+    /// <summary>
+    /// The ColorMode to use to transform colors of copies
+    /// </summary>
+    private enum ColorMode
+    {
+        /// <summary>
+        /// Do not transform colors of copies
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Specify a list of colors in the order in which they should be applied to copies
+        /// (and possibly original gameobjects depending on `recolorOriginalGameObjects`)
+        /// </summary>
+        ColorList,
+
+        /// <summary>
+        /// Use the color list as a gradient that interpolates across copies
+        /// </summary>
+        Gradient,
+    }
+
     private GameObject originalGameObject;
 
     [SerializeField, Min(1)]
