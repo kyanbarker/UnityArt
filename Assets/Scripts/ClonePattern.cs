@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[ExecuteAlways]
 public class ClonePattern : MonoBehaviour
 {
     /// <summary>
@@ -27,7 +28,22 @@ public class ClonePattern : MonoBehaviour
         Gradient,
     }
 
+    private enum GameObjectsOption
+    {
+        UseExternalGameObject,
+        UseChild,
+    }
+
     private GameObject originalGameObject;
+
+    [SerializeField]
+    private GameObjectsOption gameObjectsOption = GameObjectsOption.UseChild;
+
+    [SerializeField]
+    private GameObject externalGameObject;
+
+    [SerializeField]
+    private bool spawnClones = true;
 
     [SerializeField, Min(1)]
     [FormerlySerializedAs("numCopies")]
@@ -43,7 +59,6 @@ public class ClonePattern : MonoBehaviour
         set { numClones = Mathf.Max(1, value); }
     }
 
-    [Header("Transform Pattern")]
     [SerializeField]
     private Vector3 deltaPosition = Vector3.zero;
     public Vector3 DeltaPosition
@@ -68,21 +83,16 @@ public class ClonePattern : MonoBehaviour
         set { deltaRotation = value; }
     }
 
-    [Header("Color Pattern")]
     [SerializeField]
     private ColorMode colorMode = ColorMode.None;
 
     [SerializeField]
-    // [HideIfEqual("colorMode", (int)ColorMode.None)]
     private List<Color> colors = new() { Color.red, Color.green, Color.blue };
 
     [SerializeField]
-    // [ShowIfEqual("colorMode", (int)ColorMode.Gradient)]
     [Min(2)]
     private int gradientLength = 10;
 
-    // We explicit getters and setters instead of using arrow syntax,
-    // because Unity can serialize these as UnityEvent<int>
     public int GradientLength
     {
         get { return gradientLength; }
@@ -185,37 +195,26 @@ public class ClonePattern : MonoBehaviour
     // Awake is called before Start.
     void Awake()
     {
-        if (transform.childCount == 1)
+        switch (gameObjectsOption)
         {
-            originalGameObject = transform.GetChild(0).gameObject;
+            case GameObjectsOption.UseChild:
+                Util.RequireEquals(transform.childCount, 1, "transform.childCount");
+                originalGameObject = transform.GetChild(0).gameObject;
+                break;
+            case GameObjectsOption.UseExternalGameObject:
+                Util.RequireNonNull(externalGameObject, "externalGameObject");
+                originalGameObject = externalGameObject;
+                break;
         }
-        else
-        {
-            Debug.LogWarning("child count is not 1!");
-            return;
-        }
-        gameObjects.Add(originalGameObject);
+        Util.RequireNonNull(originalGameObject, "originalGameObject");
 
-        // Optionally, recolor the original once at start
-        if (colorMode != ColorMode.None)
+        // Optionally color the original at index 0
+        if (originalGameObject != null && colorMode != ColorMode.None)
         {
             SetColor(originalGameObject, GetColor(0));
         }
-
-        // See note on clone indices in `CreateClone`.
-        // Creating a 0'th clone would duplicate the original, so we start from index 1.
-        for (int cloneIndex = 1; cloneIndex <= NumClones - 1; cloneIndex++)
-        {
-            CreateClone(cloneIndex);
-        }
     }
 
-    /// <summary>
-    /// Creates a clone of the original game object;
-    /// Clone index 0 is the original gameobject,
-    /// clone index 1 is the 1st gameobject,
-    /// clone index 2 is the 2nd gameobject, etc.
-    /// </summary>
     private void CreateClone(int index)
     {
         if (index <= 0)
@@ -237,24 +236,26 @@ public class ClonePattern : MonoBehaviour
 
     void Update()
     {
-        // Add clones if NumClones is greater than current count
-        while (gameObjects.Count < NumClones)
+        // If disabled, strip back to only the original
+        if (!spawnClones)
         {
-            int cloneIndex = gameObjects.Count;
-            CreateClone(cloneIndex);
+            DestroyClones();
         }
-
-        // Remove clones if desiredCount is less than the current count
-        while (gameObjects.Count > NumClones)
+        else
         {
-            var lastClone = gameObjects[gameObjects.Count - 1];
-            gameObjects.RemoveAt(gameObjects.Count - 1);
-            if (lastClone != null)
+            // Spawn up to NumClones
+            while (gameObjects.Count < NumClones)
             {
-                DestroyImmediate(lastClone);
+                int cloneIndex = gameObjects.Count;
+                CreateClone(cloneIndex);
+            }
+
+            // Remove extra clones if NumClones decreased
+            while (gameObjects.Count > NumClones)
+            {
+                DestroyLastClone();
             }
         }
-
         // Update transform and color for each game object after changes
         for (int i = 0; i < gameObjects.Count; i++)
         {
@@ -264,5 +265,23 @@ public class ClonePattern : MonoBehaviour
                 SetColor(gameObjects[i], GetColor(i));
             }
         }
+    }
+
+    private void DestroyClones()
+    {
+        while (gameObjects.Count > 1)
+        {
+            DestroyLastClone();
+        }
+    }
+
+    private void DestroyLastClone()
+    {
+        Util.Assert(gameObjects.Count > 1, "No clones to destroy.");
+        var last = gameObjects[gameObjects.Count - 1];
+        gameObjects.RemoveAt(gameObjects.Count - 1);
+        Util.RequireDifferent(last, originalGameObject, "last", "originalGameObject");
+        if (last != null && last != originalGameObject)
+            DestroyImmediate(last);
     }
 }
