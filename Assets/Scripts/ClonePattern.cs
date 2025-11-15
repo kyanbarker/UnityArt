@@ -75,7 +75,10 @@ public enum ColorMode
     Gradient,
 }
 
-[ExecuteAlways]
+// Unfortunately we cannot use ExecuteAlways nor ExecuteInEditMode here because
+// for color settings we need to modify materials, which is not allowed in edit mode.
+// Only shared materials can be modified in edit mode, which would change the material for all objects using it.
+// So we have to rely on the custom editor to call Init() and Clear() manually.
 public class ClonePattern : MonoBehaviour
 {
     [SerializeField]
@@ -96,19 +99,10 @@ public class ClonePattern : MonoBehaviour
     public Vector3 DeltaScale => deltaTransform.Scale;
     public Vector3 DeltaRotation => deltaTransform.Rotation;
 
-    private enum GameObjectsOption
-    {
-        UseExternalGameObject,
-        UseChild,
-    }
-
+    // The original game object to clone
+    // should be a prefab; not a child of the ClonePattern object
     [SerializeField]
-    private GameObjectsOption gameObjectsOption = GameObjectsOption.UseChild;
-
     private GameObject originalGameObject;
-
-    [SerializeField]
-    private GameObject externalGameObject;
 
     [SerializeField, Min(1)]
     private int numClones = 1;
@@ -122,9 +116,6 @@ public class ClonePattern : MonoBehaviour
         get { return numClones; }
         set { numClones = Mathf.Max(1, value); }
     }
-
-    [SerializeField]
-    private List<GameObject> gameObjects = new();
 
     private void TransformClone(int cloneIndex, GameObject clone)
     {
@@ -148,7 +139,6 @@ public class ClonePattern : MonoBehaviour
 
     private Color GetColor(int index)
     {
-        Util.RequireDifferent(ColorMode, ColorMode.None);
         Util.Assert(ColorMode != ColorMode.None, "GetColor called when colorMode is None");
         Util.Assert(Colors.Count > 0, "Color list is empty but colorMode requires colors");
 
@@ -177,10 +167,10 @@ public class ClonePattern : MonoBehaviour
     {
         if (
             gameObjectToColor.TryGetComponent<Renderer>(out var renderer)
-            && renderer.sharedMaterial != null
+            && renderer.material != null
         )
         {
-            renderer.sharedMaterial.color = color;
+            renderer.material.color = color;
         }
         if (gameObjectToColor.TryGetComponent<SpriteRenderer>(out var spriteRenderer))
         {
@@ -201,77 +191,60 @@ public class ClonePattern : MonoBehaviour
         }
     }
 
-    // Copies should be called in Awake instead of Start so that all clones are spawned at the same time
-    // Awake is called before Start.
-    void Awake()
+    void Start()
     {
-        switch (gameObjectsOption)
-        {
-            case GameObjectsOption.UseChild:
-                Util.RequireEquals(transform.childCount, 1, "transform.childCount");
-                originalGameObject = transform.GetChild(0).gameObject;
-                break;
-            case GameObjectsOption.UseExternalGameObject:
-                Util.RequireNonNull(externalGameObject, "externalGameObject");
-                originalGameObject = externalGameObject;
-                break;
-        }
-        Util.RequireNonNull(originalGameObject, "originalGameObject");
-
-        // must include this!
-        // it will break without this!
-        gameObjects.Add(originalGameObject);
+        Init();
     }
 
-    private void Update()
+    void Update()
     {
-        // Spawn up to NumClones
-        while (gameObjects.Count < NumClones)
+        Util.Assert(transform.childCount == NumClones, "Number of clones does not match NumClones");
+        for (int i = 0; i < NumClones; i++)
         {
-            int cloneIndex = gameObjects.Count;
-            CreateClone(cloneIndex);
-        }
-
-        // Remove extra clones if NumClones decreased
-        while (gameObjects.Count > NumClones)
-        {
-            DestroyLastClone();
-        }
-
-        // Update transform and color for each game object after changes
-        for (int i = 0; i < gameObjects.Count; i++)
-        {
-            TransformClone(i, gameObjects[i]);
+            GameObject clone = transform.GetChild(i).gameObject;
+            TransformClone(i, clone);
             if (ColorMode != ColorMode.None)
             {
-                SetColor(gameObjects[i], GetColor(i));
+                SetColor(clone, GetColor(i));
             }
         }
     }
 
-    private void DestroyLastClone()
+    public void Init()
     {
-        Util.Assert(gameObjects.Count > 1, "No clones to destroy.");
-        var last = gameObjects[gameObjects.Count - 1];
-        gameObjects.RemoveAt(gameObjects.Count - 1);
-        Util.RequireNonNull(last, "last");
-        Util.RequireDifferent(last, originalGameObject, "last", "originalGameObject");
-        DestroyImmediate(last);
+        Util.RequireNonNull(originalGameObject, "originalGameObject");
+        Clear();
+        for (int i = 0; i < NumClones; i++)
+        {
+            CreateClone(i);
+        }
     }
 
-    private void CreateClone(int index)
+    public void Clear()
     {
-        if (index <= 0)
+        // The foreach loop version does not work for whatever reason
+        // foreach (Transform child in transform)
+        // {
+        //     DestroyImmediate(child.gameObject);
+        // }
+
+        // Iterate backwards to avoid issues with changing indices while deleting
+        // Iterating forward effectively skips some children
+        for (int i = transform.childCount - 1; i >= 0; i--)
         {
-            throw new Exception("CreateClone should only be called with a positive index.");
+            DestroyImmediate(transform.GetChild(i).gameObject);
         }
+    }
+
+    private GameObject CreateClone(int index)
+    {
         var clone = Instantiate(originalGameObject, transform, true);
         clone.name = originalGameObject.name + " Clone " + index;
-        gameObjects.Add(clone);
         TransformClone(index, clone);
         if (ColorMode != ColorMode.None)
         {
             SetColor(clone, GetColor(index));
         }
+        return clone;
     }
 }
