@@ -9,48 +9,28 @@ public class DeltaTransform
     [SerializeField]
     private Vector3 position = Vector3.zero;
 
-    public Vector3 Position => position;
+    public Vector3 Position
+    {
+        get => position;
+        set => position = value;
+    }
 
     [SerializeField]
     private Vector3 scale = Vector3.one;
 
-    public Vector3 Scale => scale;
+    public Vector3 Scale
+    {
+        get => scale;
+        set => scale = value;
+    }
 
     [SerializeField]
     private Vector3 rotation = Vector3.zero;
 
-    public Vector3 Rotation => rotation;
-}
-
-[Serializable]
-public class ColorSettings
-{
-    [SerializeField]
-    private ColorMode colorMode = ColorMode.None;
-
-    public ColorMode ColorMode => colorMode;
-
-    [SerializeField]
-    private List<Color> colors = new()
+    public Vector3 Rotation
     {
-        Color.red,
-        Color.yellow,
-        Color.green,
-        Color.cyan,
-        Color.blue,
-        Color.magenta,
-    };
-
-    public List<Color> Colors => colors;
-
-    [Min(2)]
-    [SerializeField]
-    private int gradientLength = 10;
-
-    public int GradientLength
-    {
-        set { gradientLength = Mathf.Max(2, value); }
-        get { return gradientLength; }
+        get => rotation;
+        set => rotation = value;
     }
 }
 
@@ -65,14 +45,44 @@ public enum ColorMode
     None,
 
     /// <summary>
-    /// Specify a list of colors in the order in which they should be applied to game objects
-    /// </summary>
-    ColorList,
-
-    /// <summary>
     /// Use the color list as a gradient that interpolates across game objects
     /// </summary>
     Gradient,
+}
+
+[Serializable]
+public class ColorSettings
+{
+    [SerializeField]
+    private ColorMode colorMode = ColorMode.None;
+
+    public ColorMode ColorMode
+    {
+        get { return colorMode; }
+        set { colorMode = value; }
+    }
+
+    // Keep an integer length so users can specify discrete sampling/repeats
+    // across the Gradient (matches previous behaviour).
+    [Min(2)]
+    [SerializeField]
+    private int gradientLength = 10;
+
+    public int GradientLength
+    {
+        set { gradientLength = Mathf.Max(2, value); }
+        get { return gradientLength; }
+    }
+
+    // Use Unity's built-in Gradient type for Gradient mode.
+    [SerializeField]
+    private Gradient gradient = new();
+
+    public Gradient Gradient
+    {
+        get { return gradient; }
+        set { gradient = value; }
+    }
 }
 
 // Unfortunately we cannot use ExecuteAlways nor ExecuteInEditMode here because
@@ -84,25 +94,51 @@ public class ClonePattern : MonoBehaviour
     [SerializeField]
     private ColorSettings colorSettings = new();
 
-    public ColorMode ColorMode => colorSettings.ColorMode;
-    public List<Color> Colors => colorSettings.Colors;
+    public ColorMode ColorMode
+    {
+        get { return colorSettings.ColorMode; }
+        set { colorSettings.ColorMode = value; }
+    }
     public int GradientLength
     {
         set { colorSettings.GradientLength = Mathf.Max(2, value); }
         get { return colorSettings.GradientLength; }
     }
+    public Gradient Gradient
+    {
+        get { return colorSettings.Gradient; }
+        set { colorSettings.Gradient = value; }
+    }
 
     [SerializeField]
-    private DeltaTransform deltaTransform = new();
+    public DeltaTransform deltaTransform = new();
 
-    public Vector3 DeltaPosition => deltaTransform.Position;
-    public Vector3 DeltaScale => deltaTransform.Scale;
-    public Vector3 DeltaRotation => deltaTransform.Rotation;
+    public Vector3 DeltaPosition
+    {
+        get => deltaTransform.Position;
+        set => deltaTransform.Position = value;
+    }
+    public Vector3 DeltaScale
+    {
+        get => deltaTransform.Scale;
+        set => deltaTransform.Scale = value;
+    }
+    public Vector3 DeltaRotation
+    {
+        get => deltaTransform.Rotation;
+        set => deltaTransform.Rotation = value;
+    }
 
     // The original game object to clone
     // should be a prefab; not a child of the ClonePattern object
     [SerializeField]
     private GameObject originalGameObject;
+
+    public GameObject OriginalGameObject
+    {
+        get { return originalGameObject; }
+        set { originalGameObject = value; }
+    }
 
     [SerializeField, Min(1)]
     private int numClones = 1;
@@ -140,27 +176,8 @@ public class ClonePattern : MonoBehaviour
     private Color GetColor(int index)
     {
         Util.Assert(ColorMode != ColorMode.None, "GetColor called when colorMode is None");
-        Util.Assert(Colors.Count > 0, "Color list is empty but colorMode requires colors");
-
-        return ColorMode switch
-        {
-            ColorMode.ColorList => Colors[index % Colors.Count],
-            ColorMode.Gradient => GetColorFromGradient(
-                (float)(index % GradientLength) / (GradientLength - 1)
-            ),
-            _ => throw new Exception(),
-        };
-    }
-
-    private Color GetColorFromGradient(float t)
-    {
-        Util.Assert(Colors.Count >= 2, "At least two colors are required for gradient mode.");
-
-        float scaledPosition = t * (Colors.Count - 1);
-        int lowerIndex = Mathf.FloorToInt(scaledPosition);
-        int upperIndex = Mathf.Min(lowerIndex + 1, Colors.Count - 1);
-        float localT = scaledPosition - lowerIndex;
-        return Color.Lerp(Colors[lowerIndex], Colors[upperIndex], localT);
+        float t = (float)(index % GradientLength) / (GradientLength - 1);
+        return Gradient.Evaluate(t);
     }
 
     private void SetColor(GameObject gameObjectToColor, Color color)
@@ -228,7 +245,7 @@ public class ClonePattern : MonoBehaviour
         //     DestroyImmediate(child.gameObject);
         // }
 
-        // Iterate backwards to avoid issues with changing indices while deleting
+        // Iterate backwards to avoid issues with changing indices while deleting.
         // Iterating forward effectively skips some children
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
