@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class LFOController : MonoBehaviour
 {
@@ -38,18 +39,16 @@ public class LFOController : MonoBehaviour
         set => targets = value;
     }
 
-    private float elapsedTime = 0f;
-
     private void Update()
     {
         float period = 1f / frequency;
         float normalizedTime = Mathf.Repeat(Time.time / period + phaseOffset, 1f);
         float lfoValue = waveform.Evaluate(normalizedTime);
 
-        Util.RequireNonNull(targets, "targets");
+        Assert.IsNotNull(targets);
         for (int i = 0; i < targets.Length; i++)
         {
-            Util.RequireNonNull(targets[i], $"targets[{i}]");
+            Assert.IsNotNull(targets[i]);
             targets[i].Invoke(lfoValue);
         }
     }

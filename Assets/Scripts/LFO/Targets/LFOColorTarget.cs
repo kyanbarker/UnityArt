@@ -7,7 +7,7 @@ public class LFOColorTarget : LFOTarget<Color>
     [SerializeField]
     private Color min = Color.black;
 
-    public Color Min
+    public override Color Min
     {
         get => min;
         set => min = value;
@@ -16,7 +16,7 @@ public class LFOColorTarget : LFOTarget<Color>
     [SerializeField]
     private Color max = Color.white;
 
-    public Color Max
+    public override Color Max
     {
         get => max;
         set => max = value;

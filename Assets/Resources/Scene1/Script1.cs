@@ -50,7 +50,7 @@ public class Script1 : MonoBehaviour
 
                 clonePattern.OriginalGameObject = linePrefab;
                 clonePattern.NumClones = 51;
-                clonePattern.DeltaPosition = new Vector3(1, 0, 0);
+                clonePattern.DeltaPosition = new Vector3(2, 0, 0);
 
                 clonePattern.ColorMode = ColorMode.Gradient;
                 clonePattern.GradientLength = 51;
@@ -69,10 +69,6 @@ public class Script1 : MonoBehaviour
                 // starting at minimum length
                 void SetupGradientController()
                 {
-                    LFOController controller = plane.AddComponent<LFOController>();
-                    controller.Waveform = sineWaveform;
-                    controller.Frequency = 1f / 32f; // one cycle every 32 seconds
-                    controller.PhaseOffset = 0.75f; // start at minimum length
                     LFOIntTarget target = plane.AddComponent<LFOIntTarget>();
                     target.Min = 51;
                     target.Max = 102;
@@ -81,6 +77,10 @@ public class Script1 : MonoBehaviour
                     {
                         clonePattern.GradientLength = length;
                     });
+                    LFOController controller = plane.AddComponent<LFOController>();
+                    controller.Waveform = sineWaveform;
+                    controller.Frequency = 1f / 32f; // one cycle every 32 seconds
+                    controller.PhaseOffset = 0.75f; // start at minimum length
                     controller.Targets = new LFOTarget[] { target };
                 }
                 SetupGradientController();
@@ -89,9 +89,6 @@ public class Script1 : MonoBehaviour
                 // lfo(t = 0) = 0.5 ==> delta x = 1.5
                 void SetupDeltaXController()
                 {
-                    LFOController controller = plane.AddComponent<LFOController>();
-                    controller.Waveform = sineWaveform;
-                    controller.Frequency = 1f / 8f; // one cycle every 8 seconds
                     LFOFloatTarget target = plane.AddComponent<LFOFloatTarget>();
                     target.Min = 1f;
                     target.Max = 2f;
@@ -100,6 +97,9 @@ public class Script1 : MonoBehaviour
                     {
                         clonePattern.DeltaPosition = new Vector3(deltaX, 0, 0);
                     });
+                    LFOController controller = plane.AddComponent<LFOController>();
+                    controller.Waveform = sineWaveform;
+                    controller.Frequency = 1f / 8f; // one cycle every 8 seconds
                     controller.Targets = new LFOTarget[] { target };
                 }
                 SetupDeltaXController();
@@ -157,25 +157,24 @@ public class Script1 : MonoBehaviour
 
             GameObject X = CreatePrismX("X");
 
-            GameObject prisms = new("Prisms");
-            new List<GameObject>() { centerY, leftY, rightY, backY, frontY, Z, X }.ForEach(prism =>
-                prism.transform.parent = prisms.transform
-            );
-
             void SetupPrismRotationController()
             {
-                LFOController prismsRotationController = prisms.AddComponent<LFOController>();
-                prismsRotationController.Waveform = linearWaveform;
-                prismsRotationController.Frequency = 1f / 8f; // one cycle every 8 seconds
-                LFOFloatTarget prismsRotationYTarget = prisms.AddComponent<LFOFloatTarget>();
-                prismsRotationYTarget.Min = -180f;
-                prismsRotationYTarget.Max = 180f;
-                prismsRotationYTarget.action = new UnityEvent<float>();
-                prismsRotationYTarget.action.AddListener(yRotation =>
+                GameObject prisms = new("Prisms");
+                new List<GameObject>() { centerY, leftY, rightY, backY, frontY, Z, X }.ForEach(
+                    prism => prism.transform.parent = prisms.transform
+                );
+                LFOFloatTarget target = prisms.AddComponent<LFOFloatTarget>();
+                target.Min = -180f;
+                target.Max = 180f;
+                target.action = new UnityEvent<float>();
+                target.action.AddListener(yRotation =>
                 {
                     prisms.transform.localRotation = Quaternion.Euler(0, yRotation, 0);
                 });
-                prismsRotationController.Targets = new LFOTarget[] { prismsRotationYTarget };
+                LFOController controller = prisms.AddComponent<LFOController>();
+                controller.Waveform = linearWaveform;
+                controller.Frequency = 1f / 8f;
+                controller.Targets = new LFOTarget[] { target };
             }
             SetupPrismRotationController();
         }
@@ -184,19 +183,19 @@ public class Script1 : MonoBehaviour
         void SetupCameraFovController()
         {
             Camera mainCamera = Camera.main;
-            LFOController cameraFovController = mainCamera.gameObject.AddComponent<LFOController>();
-            cameraFovController.Waveform = sineWaveform;
-            cameraFovController.Frequency = 1f / 4f; // one cycle every 4 seconds
-            cameraFovController.PhaseOffset = 0.75f; // start at minimum fov
-            LFOFloatTarget cameraFovTarget = mainCamera.gameObject.AddComponent<LFOFloatTarget>();
-            cameraFovTarget.Min = 30f;
-            cameraFovTarget.Max = 60f;
-            cameraFovTarget.action = new UnityEvent<float>();
-            cameraFovTarget.action.AddListener(fov =>
+            LFOFloatTarget target = mainCamera.gameObject.AddComponent<LFOFloatTarget>();
+            target.Min = 30f;
+            target.Max = 60f;
+            target.action = new UnityEvent<float>();
+            target.action.AddListener(fov =>
             {
                 mainCamera.fieldOfView = fov;
             });
-            cameraFovController.Targets = new LFOTarget[] { cameraFovTarget };
+            LFOController controller = mainCamera.gameObject.AddComponent<LFOController>();
+            controller.Waveform = sineWaveform;
+            controller.Frequency = 1f / 4f; // one cycle every 4 seconds
+            controller.PhaseOffset = 0.75f; // start at minimum fov
+            controller.Targets = new LFOTarget[] { target };
         }
         SetupCameraFovController();
     }

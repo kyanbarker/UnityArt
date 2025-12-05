@@ -7,7 +7,7 @@ public class LFOVector2Target : LFOTarget<Vector2>
     [SerializeField]
     private Vector2 min = Vector2.zero;
 
-    public Vector2 Min
+    public override Vector2 Min
     {
         get => min;
         set => min = value;
@@ -16,7 +16,7 @@ public class LFOVector2Target : LFOTarget<Vector2>
     [SerializeField]
     private Vector2 max = Vector2.one;
 
-    public Vector2 Max
+    public override Vector2 Max
     {
         get => max;
         set => max = value;

@@ -1,24 +1,7 @@
-- in clone pattern, want to have a function `ApplyEffect(CloneIndex in [0, NumClones - 1])` that applies some operation on the clone according to the index. the result of applying to all indices in [0, NumClones - 1] is the pattern
-- one example is delta transform and another example is gradients
-- we want to refactor clone pattern so that we can provide arbitrary functions from int to void 
-- code example
-```c#
-interface IEffect
-{
-    // applies this effect to the clone according to the index
-    void Apply(int index, GameObject clone);
-}
+- in clone pattern, we should raise a warning on start if there is already a child gameobject before we've made any clones since that would cause confusion
+- in clone pattern, want to have a function `ForEachIndexed(CloneIndex in [0, NumClones - 1], Clone)` that invokes a function for each clone index and clone. then we will refactor delta transform and gradient into their own monobehaviors and call `ForEachIndexed` to apply the effects.
+- cons of using suppliers: we would have to create a new class for every unity property we want to modulate. in the components that we make, it's simple to make our fields be suppliers but what about camera.fov? we could have float action component which holds a float supplier and then a unity event. and then we call that every update. so if suppliers were () => T then our lfo's and berlin suppliers would need to use Time.time. i don't think we want to make our suppliers float => T although i guess we could. we could still have constants. in scripting it would be 
 
-var clonePatternGameObject = new GameObject(
-    "ClonePattern", typeof(ClonePattern), typeof(DeltaTransformEffect), typeof(GradientEffect)
-);
-var clonePattern = clonePatternGameObject.GetComponent<ClonePattern>();
-// configure clone pattern
-
-```
-but wait, we need to be able to modulate gradientLength. So 
-- 
-- we want to change hardcoded values to suppliers
 - 
 - 
 - 

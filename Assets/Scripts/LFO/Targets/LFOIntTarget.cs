@@ -7,7 +7,7 @@ public class LFOIntTarget : LFOTarget<int>
     [SerializeField]
     private int min = 0;
 
-    public int Min
+    public override int Min
     {
         get => min;
         set => min = value;
@@ -16,7 +16,7 @@ public class LFOIntTarget : LFOTarget<int>
     [SerializeField]
     private int max = 1;
 
-    public int Max
+    public override int Max
     {
         get => max;
         set => max = value;

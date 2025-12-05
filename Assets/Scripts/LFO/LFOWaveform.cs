@@ -1,5 +1,5 @@
-using System;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class LFOWaveform : MonoBehaviour
 {
@@ -10,21 +10,21 @@ public class LFOWaveform : MonoBehaviour
 
     public float Evaluate(float time)
     {
-        Util.RequireBetweenZeroToOne(time, "time");
+        Assert.IsTrue(0 <= time && time <= 1, "time must be in [0, 1].");
         float value = curve.Evaluate(time);
-        Util.RequireBetweenZeroToOne(value, "value");
+        Assert.IsTrue(0 <= value && value <= 1, "value must be in [0, 1].");
         return value;
     }
 
     private void Start()
     {
-        float minValue = AnimationCurveUtils.GetMinValueOfCurve(curve);
-        float maxValue = AnimationCurveUtils.GetMaxValueOfCurve(curve);
-        float minTime = AnimationCurveUtils.GetMinTimeOfCurve(curve);
-        float maxTime = AnimationCurveUtils.GetMaxTimeOfCurve(curve);
-        Util.RequireEquals(minTime, 0f, "minTime");
-        Util.RequireEquals(maxTime, 1f, "maxTime");
-        Util.RequireBetweenZeroToOne(minValue, "minValue");
-        Util.RequireBetweenZeroToOne(maxValue, "maxValue");
+        float minValue = curve.keys[0].value;
+        float maxValue = curve.keys[^1].value;
+        float minTime = curve.keys[0].time;
+        float maxTime = curve.keys[^1].time;
+        Assert.AreEqual(minTime, 0f, "minTime != 0f");
+        Assert.AreEqual(maxTime, 1f, "maxTime != 1f");
+        Assert.IsTrue(0 <= minValue && minValue <= 1, "minValue must be in [0, 1].");
+        Assert.IsTrue(0 <= maxValue && maxValue <= 1, "maxValue must be in [0, 1].");
     }
 }

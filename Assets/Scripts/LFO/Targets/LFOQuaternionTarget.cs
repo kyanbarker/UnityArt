@@ -7,7 +7,7 @@ public class LFOQuaternionTarget : LFOTarget<Quaternion>
     [SerializeField]
     private Quaternion min = Quaternion.identity;
 
-    public Quaternion Min
+    public override Quaternion Min
     {
         get => min;
         set => min = value;
@@ -16,7 +16,7 @@ public class LFOQuaternionTarget : LFOTarget<Quaternion>
     [SerializeField]
     private Quaternion max = Quaternion.identity;
 
-    public Quaternion Max
+    public override Quaternion Max
     {
         get => max;
         set => max = value;

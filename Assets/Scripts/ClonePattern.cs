@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Serialization;
 
 [Serializable]
@@ -85,10 +86,6 @@ public class ColorSettings
     }
 }
 
-// Unfortunately we cannot use ExecuteAlways nor ExecuteInEditMode here because
-// for color settings we need to modify materials, which is not allowed in edit mode.
-// Only shared materials can be modified in edit mode, which would change the material for all objects using it.
-// So we have to rely on the custom editor to call Init() and Clear() manually.
 public class ClonePattern : MonoBehaviour
 {
     [SerializeField]
@@ -175,37 +172,19 @@ public class ClonePattern : MonoBehaviour
 
     private Color GetColor(int index)
     {
-        Util.Assert(ColorMode != ColorMode.None, "GetColor called when colorMode is None");
+        Assert.AreNotEqual(ColorMode, ColorMode.None, "GetColor called when colorMode is None");
         float t = (float)(index % GradientLength) / (GradientLength - 1);
         return Gradient.Evaluate(t);
     }
 
     private void SetColor(GameObject gameObjectToColor, Color color)
     {
-        if (
-            gameObjectToColor.TryGetComponent<Renderer>(out var renderer)
-            && renderer.material != null
-        )
+        // Get or add ColorController component and set its color
+        if (!gameObjectToColor.TryGetComponent<ColorController>(out var colorController))
         {
-            renderer.material.color = color;
+            colorController = gameObjectToColor.AddComponent<ColorController>();
         }
-        if (gameObjectToColor.TryGetComponent<SpriteRenderer>(out var spriteRenderer))
-        {
-            spriteRenderer.color = color;
-        }
-        if (gameObjectToColor.TryGetComponent<UnityEngine.UI.Image>(out var image))
-        {
-            image.color = color;
-        }
-        if (gameObjectToColor.TryGetComponent<UnityEngine.UI.Text>(out var text))
-        {
-            text.color = color;
-        }
-
-        foreach (Transform child in gameObjectToColor.transform)
-        {
-            SetColor(child.gameObject, color);
-        }
+        colorController.Color = color;
     }
 
     void Start()
@@ -215,7 +194,11 @@ public class ClonePattern : MonoBehaviour
 
     void Update()
     {
-        Util.Assert(transform.childCount == NumClones, "Number of clones does not match NumClones");
+        Assert.AreEqual(
+            transform.childCount,
+            NumClones,
+            "Number of clones does not match NumClones"
+        );
         for (int i = 0; i < NumClones; i++)
         {
             GameObject clone = transform.GetChild(i).gameObject;
@@ -229,7 +212,7 @@ public class ClonePattern : MonoBehaviour
 
     public void Init()
     {
-        Util.RequireNonNull(originalGameObject, "originalGameObject");
+        Assert.IsNotNull(originalGameObject, "originalGameObject");
         Clear();
         for (int i = 0; i < NumClones; i++)
         {

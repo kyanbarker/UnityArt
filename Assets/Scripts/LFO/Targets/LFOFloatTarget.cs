@@ -7,7 +7,7 @@ public class LFOFloatTarget : LFOTarget<float>
     [SerializeField]
     private float min = 0;
 
-    public float Min
+    public override float Min
     {
         get => min;
         set => min = value;
@@ -16,7 +16,7 @@ public class LFOFloatTarget : LFOTarget<float>
     [SerializeField]
     private float max = 1;
 
-    public float Max
+    public override float Max
     {
         get => max;
         set => max = value;
