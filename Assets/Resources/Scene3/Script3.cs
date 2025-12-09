@@ -11,9 +11,10 @@ public class Script3 : MonoBehaviour
         float maxX = 30f;
         float minY = -20f;
         float maxY = 20f;
-        float z = 20f;
+        float minZ = 0f;
+        float maxZ = 0f;
 
-        int numVertices = 20;
+        int numVertices = 21;
         float movementSpeed = 5f;
 
         GameObject verticesParent = new("VerticesParent");
@@ -21,13 +22,17 @@ public class Script3 : MonoBehaviour
         List<GameObject> vertices = new();
 
         // Create bounds for DVD screen movement
-        Vector3 boundsCenter = new((minX + maxX) / 2f, (minY + maxY) / 2f, z);
-        Vector3 boundsSize = new(maxX - minX, maxY - minY, 0f);
+        Vector3 boundsCenter = new((minX + maxX) / 2f, (minY + maxY) / 2f, (minZ + maxZ) / 2f);
+        Vector3 boundsSize = new(maxX - minX, maxY - minY, maxZ - minZ);
         Bounds movementBounds = new(boundsCenter, boundsSize);
 
         for (int i = 0; i < numVertices; i++)
         {
-            Vector3 randomPosition = new(Random.Range(minX, maxX), Random.Range(minY, maxY), z);
+            Vector3 randomPosition = new(
+                Random.Range(minX, maxX),
+                Random.Range(minY, maxY),
+                Random.Range(minZ, maxZ)
+            );
             GameObject vertex = new($"Vertex {i}");
             vertex.transform.position = randomPosition;
             vertex.transform.parent = verticesParent.transform;

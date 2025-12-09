@@ -6,8 +6,6 @@ public class LFOWaveform : MonoBehaviour
     [SerializeField]
     private AnimationCurve curve;
 
-    public AnimationCurve Curve => curve;
-
     public float Evaluate(float time)
     {
         Assert.IsTrue(0 <= time && time <= 1, "time must be in [0, 1].");

@@ -3,53 +3,25 @@ using UnityEngine.Assertions;
 
 public class LFOController : MonoBehaviour
 {
-    [SerializeField]
-    private LFOWaveform waveform;
+    public LFOWaveform Waveform { get; set; }
 
-    public LFOWaveform Waveform
-    {
-        get => waveform;
-        set => waveform = value;
-    }
+    public float Frequency { get; set; }
 
-    [SerializeField, Min(0.0001f)]
-    private float frequency = 1f; // in Hz
+    public float PhaseOffset { get; set; }
 
-    public float Frequency
-    {
-        get => frequency;
-        set => frequency = value;
-    }
-
-    [SerializeField, Range(0f, 1f)]
-    private float phaseOffset = 0f;
-
-    public float PhaseOffset
-    {
-        get => phaseOffset;
-        set => phaseOffset = value;
-    }
-
-    [SerializeReference]
-    private LFOTarget[] targets;
-
-    public LFOTarget[] Targets
-    {
-        get => targets;
-        set => targets = value;
-    }
+    public LFOTarget[] Targets { get; set; }
 
     private void Update()
     {
-        float period = 1f / frequency;
-        float normalizedTime = Mathf.Repeat(Time.time / period + phaseOffset, 1f);
-        float lfoValue = waveform.Evaluate(normalizedTime);
+        float period = 1f / Frequency;
+        float normalizedTime = Mathf.Repeat(Time.time / period + PhaseOffset, 1f);
+        float waveformValue = Waveform.Evaluate(normalizedTime);
 
-        Assert.IsNotNull(targets);
-        for (int i = 0; i < targets.Length; i++)
+        Assert.IsNotNull(Targets);
+        for (int i = 0; i < Targets.Length; i++)
         {
-            Assert.IsNotNull(targets[i]);
-            targets[i].Invoke(lfoValue);
+            Assert.IsNotNull(Targets[i]);
+            Targets[i].Invoke(waveformValue);
         }
     }
 }

@@ -29,11 +29,10 @@ public class Script2 : MonoBehaviour
                 LFOFloatTarget target = prism.AddComponent<LFOFloatTarget>();
                 target.Min = -180f;
                 target.Max = 180f;
-                target.action = new UnityEvent<float>();
-                target.action.AddListener(yRotation =>
+                target.Action = yRotation =>
                 {
                     transformController.RotationY = yRotation;
-                });
+                };
                 LFOController controller = prism.AddComponent<LFOController>();
                 controller.Waveform = linearWaveform;
                 controller.Frequency = Random.Range(1 / 16f, 1 / 8f);
@@ -68,13 +67,13 @@ public class Script2 : MonoBehaviour
                 GameObject linePrefab = Resources.Load<GameObject>("Scene2/Line");
                 ClonePattern clonePattern = plane.AddComponent<ClonePattern>();
 
-                clonePattern.OriginalGameObject = linePrefab;
-                clonePattern.NumClones = 51;
-                clonePattern.DeltaPosition = new Vector3(2, 0, 0);
+                DeltaTransformCloneEffect deltaEffect =
+                    plane.AddComponent<DeltaTransformCloneEffect>();
+                deltaEffect.DeltaPosition = new Vector3(2, 0, 0);
 
-                clonePattern.ColorMode = ColorMode.Gradient;
-                clonePattern.GradientLength = 51;
-                clonePattern.Gradient.colorKeys = new GradientColorKey[]
+                GradientCloneEffect gradientEffect = plane.AddComponent<GradientCloneEffect>();
+                gradientEffect.GradientLength = 51;
+                gradientEffect.Gradient.colorKeys = new GradientColorKey[]
                 {
                     new(Color.black, 0),
                     new(Color.cyan, 1 / 6f),
@@ -85,43 +84,49 @@ public class Script2 : MonoBehaviour
                     new(Color.black, 6 / 6f),
                 };
 
+                clonePattern.OriginalGameObject = linePrefab;
+                clonePattern.NumClones = 51;
+                clonePattern.CloneEffects = new List<ICloneEffect>()
+                {
+                    deltaEffect,
+                    gradientEffect,
+                };
+
                 // lerp gradient length between 51 and 102 using a sine wave over 32 seconds
                 // starting at minimum length
-                void SetupGradientController()
-                {
-                    LFOIntTarget target = plane.AddComponent<LFOIntTarget>();
-                    target.Min = 51;
-                    target.Max = 102;
-                    target.action = new UnityEvent<int>();
-                    target.action.AddListener(length =>
-                    {
-                        clonePattern.GradientLength = length;
-                    });
-                    LFOController controller = plane.AddComponent<LFOController>();
-                    controller.Waveform = sineWaveform;
-                    controller.Frequency = 1f / 32f; // one cycle every 32 seconds
-                    controller.PhaseOffset = 0.75f; // start at minimum length
-                    controller.Targets = new LFOTarget[] { target };
-                }
+                // void SetupGradientController()
+                // {
+                //     LFOIntTarget target = plane.AddComponent<LFOIntTarget>();
+                //     target.Min = 51;
+                //     target.Max = 102;
+                //     target.Action = length =>
+                //     {
+                //         gradientEffect.GradientLength = length;
+                //     };
+                //     LFOController controller = plane.AddComponent<LFOController>();
+                //     controller.Waveform = sineWaveform;
+                //     controller.Frequency = 1f / 32f; // one cycle every 32 seconds
+                //     controller.PhaseOffset = 0.75f; // start at minimum length
+                //     controller.Targets = new LFOTarget[] { target };
+                // }
                 // SetupGradientController();
 
                 // lerp delta x between 1 and 2 using a sine wave over 8 seconds
                 // lfo(t = 0) = 0.5 ==> delta x = 1.5
-                void SetupDeltaXController()
-                {
-                    LFOFloatTarget target = plane.AddComponent<LFOFloatTarget>();
-                    target.Min = 1f;
-                    target.Max = 2f;
-                    target.action = new UnityEvent<float>();
-                    target.action.AddListener(deltaX =>
-                    {
-                        clonePattern.DeltaPosition = new Vector3(deltaX, 0, 0);
-                    });
-                    LFOController controller = plane.AddComponent<LFOController>();
-                    controller.Waveform = sineWaveform;
-                    controller.Frequency = 1f / 8f; // one cycle every 8 seconds
-                    controller.Targets = new LFOTarget[] { target };
-                }
+                // void SetupDeltaXController()
+                // {
+                //     LFOFloatTarget target = plane.AddComponent<LFOFloatTarget>();
+                //     target.Min = 1f;
+                //     target.Max = 2f;
+                //     target.Action = deltaX =>
+                //     {
+                //         deltaEffect.DeltaPosition = new Vector3(deltaX, 0, 0);
+                //     };
+                //     LFOController controller = plane.AddComponent<LFOController>();
+                //     controller.Waveform = sineWaveform;
+                //     controller.Frequency = 1f / 8f; // one cycle every 8 seconds
+                //     controller.Targets = new LFOTarget[] { target };
+                // }
                 // SetupDeltaXController();
 
                 return plane;
@@ -177,46 +182,44 @@ public class Script2 : MonoBehaviour
 
             GameObject X = CreatePrismX("X");
 
-            void SetupPrismRotationController()
-            {
-                GameObject prisms = new("Prisms");
-                new List<GameObject>() { centerY, leftY, rightY, backY, frontY, Z, X }.ForEach(
-                    prism => prism.transform.parent = prisms.transform
-                );
-                LFOController controller = prisms.AddComponent<LFOController>();
-                controller.Waveform = linearWaveform;
-                controller.Frequency = 1f / 8f; // one cycle every 8 seconds
-                LFOFloatTarget target = prisms.AddComponent<LFOFloatTarget>();
-                target.Min = -180f;
-                target.Max = 180f;
-                target.action = new UnityEvent<float>();
-                target.action.AddListener(yRotation =>
-                {
-                    prisms.transform.localRotation = Quaternion.Euler(0, yRotation, 0);
-                });
-                controller.Targets = new LFOTarget[] { target };
-            }
+            // void SetupPrismRotationController()
+            // {
+            //     GameObject prisms = new("Prisms");
+            //     new List<GameObject>() { centerY, leftY, rightY, backY, frontY, Z, X }.ForEach(
+            //         prism => prism.transform.parent = prisms.transform
+            //     );
+            //     LFOController controller = prisms.AddComponent<LFOController>();
+            //     controller.Waveform = linearWaveform;
+            //     controller.Frequency = 1f / 8f; // one cycle every 8 seconds
+            //     LFOFloatTarget target = prisms.AddComponent<LFOFloatTarget>();
+            //     target.Min = -180f;
+            //     target.Max = 180f;
+            //     target.Action = yRotation =>
+            //     {
+            //         prisms.transform.localRotation = Quaternion.Euler(0, yRotation, 0);
+            //     };
+            //     controller.Targets = new LFOTarget[] { target };
+            // }
             // SetupPrismRotationController();
         }
         SetupPrisms();
 
-        void SetupCameraFovController()
-        {
-            Camera mainCamera = Camera.main;
-            LFOController controller = mainCamera.gameObject.AddComponent<LFOController>();
-            controller.Waveform = sineWaveform;
-            controller.Frequency = 1f / 4f; // one cycle every 4 seconds
-            controller.PhaseOffset = 0.75f; // start at minimum fov
-            LFOFloatTarget target = mainCamera.gameObject.AddComponent<LFOFloatTarget>();
-            target.Min = 30f;
-            target.Max = 60f;
-            target.action = new UnityEvent<float>();
-            target.action.AddListener(fov =>
-            {
-                mainCamera.fieldOfView = fov;
-            });
-            controller.Targets = new LFOTarget[] { target };
-        }
+        // void SetupCameraFovController()
+        // {
+        //     Camera mainCamera = Camera.main;
+        //     LFOController controller = mainCamera.gameObject.AddComponent<LFOController>();
+        //     controller.Waveform = sineWaveform;
+        //     controller.Frequency = 1f / 4f; // one cycle every 4 seconds
+        //     controller.PhaseOffset = 0.75f; // start at minimum fov
+        //     LFOFloatTarget target = mainCamera.gameObject.AddComponent<LFOFloatTarget>();
+        //     target.Min = 30f;
+        //     target.Max = 60f;
+        //     target.Action = fov =>
+        //     {
+        //         mainCamera.fieldOfView = fov;
+        //     };
+        //     controller.Targets = new LFOTarget[] { target };
+        // }
         // SetupCameraFovController();
     }
 }

@@ -46,11 +46,10 @@ public class ColorController : MonoBehaviour
 
     private void ApplyColor()
     {
-        propertyBlock ??= new MaterialPropertyBlock();
-
         // Standard Renderer (MeshRenderer, etc.)
         if (TryGetComponent<Renderer>(out var renderer) && renderer.sharedMaterial != null)
         {
+            propertyBlock ??= new MaterialPropertyBlock();
             renderer.GetPropertyBlock(propertyBlock);
 
             // Try both _Color (Built-in RP) and _BaseColor (URP/HDRP)

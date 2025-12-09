@@ -8,14 +8,7 @@ using UnityEngine.Assertions;
 [RequireComponent(typeof(LineRenderer))]
 public class DynamicLineRenderer : MonoBehaviour
 {
-    [SerializeField]
-    private List<GameObject> points = new();
-
-    public List<GameObject> Points
-    {
-        get => points;
-        set => points = value;
-    }
+    public List<GameObject> Points { get; set; }
 
     private LineRenderer lineRenderer;
 
@@ -26,9 +19,9 @@ public class DynamicLineRenderer : MonoBehaviour
 
     void Start()
     {
-        Assert.IsNotNull(points);
+        Assert.IsNotNull(Points);
         Assert.IsNotNull(lineRenderer);
-        lineRenderer.positionCount = points.Count;
+        lineRenderer.positionCount = Points.Count;
         UpdateLinePositions();
     }
 
@@ -39,20 +32,20 @@ public class DynamicLineRenderer : MonoBehaviour
 
     private void UpdateLinePositions()
     {
-        Assert.IsNotNull(points);
+        Assert.IsNotNull(Points);
         Assert.IsNotNull(lineRenderer);
 
         // Update position count in case the list changed
-        if (lineRenderer.positionCount != points.Count)
+        if (lineRenderer.positionCount != Points.Count)
         {
-            lineRenderer.positionCount = points.Count;
+            lineRenderer.positionCount = Points.Count;
         }
 
         // Update each position to match the GameObject positions
-        for (int i = 0; i < points.Count; i++)
+        for (int i = 0; i < Points.Count; i++)
         {
-            Assert.IsNotNull(points[i]);
-            lineRenderer.SetPosition(i, points[i].transform.position);
+            Assert.IsNotNull(Points[i]);
+            lineRenderer.SetPosition(i, Points[i].transform.position);
         }
     }
 }

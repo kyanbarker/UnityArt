@@ -6,23 +6,9 @@ using UnityEngine;
 /// </summary>
 public class DVDScreenMovement : MonoBehaviour
 {
-    [SerializeField]
-    private float speed = 5f;
+    public float Speed { get; set; } = 5f;
 
-    public float Speed
-    {
-        get => speed;
-        set => speed = value;
-    }
-
-    [SerializeField]
-    private Bounds bounds = new Bounds(Vector3.zero, new Vector3(40f, 20f, 0f));
-
-    public Bounds Bounds
-    {
-        get => bounds;
-        set => bounds = value;
-    }
+    public Bounds Bounds { get; set; }
 
     private Vector3 velocity;
 
@@ -30,7 +16,7 @@ public class DVDScreenMovement : MonoBehaviour
     {
         // Initialize with a random direction (normalized) and apply speed
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
-        velocity = (Vector3)randomDirection * speed;
+        velocity = (Vector3)randomDirection * Speed;
     }
 
     void Update()
@@ -43,10 +29,10 @@ public class DVDScreenMovement : MonoBehaviour
         Vector3 reflectedPosition = position;
         bool reflected = false;
 
-        float minX = bounds.center.x - bounds.extents.x;
-        float maxX = bounds.center.x + bounds.extents.x;
-        float minY = bounds.center.y - bounds.extents.y;
-        float maxY = bounds.center.y + bounds.extents.y;
+        float minX = Bounds.center.x - Bounds.extents.x;
+        float maxX = Bounds.center.x + Bounds.extents.x;
+        float minY = Bounds.center.y - Bounds.extents.y;
+        float maxY = Bounds.center.y + Bounds.extents.y;
 
         // Check X bounds
         if (position.x < minX)
